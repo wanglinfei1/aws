@@ -1,0 +1,31 @@
+{
+  "name": "bae-nodejs",
+  "version": "1.0.0",
+  "author": "bae",
+  "description": "The first bae nodejs app!",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "forever_start": "forever start server.js",
+    "forever_stop": "forever stop server.js",
+    "forever_restart": "forever restart server.js"
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "axios": "0.16.2",
+    "body-parser": "1.18.2",
+    "cheerio": "^1.0.0-rc.2",
+    "cookie-parser": "1.4.3",
+    "eventproxy": "^1.0.0",
+    "express": "4.15.5",
+    "express-favicon": "^2.0.1",
+    "express-session": "1.15.6",
+    "forever": "^0.15.3",
+    "jssha": "1.5.0",
+    "mongodb": "2.2.19",
+    "request": "2.85.0",
+    "sha-1": "0.1.1",
+    "superagent": "^3.8.2",
+    "superagent-charset": "^1.2.0"
+  }
+}
