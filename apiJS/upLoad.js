@@ -10,10 +10,14 @@ const cos = new COS({
   SecretId: config.SecretId,
   SecretKey: config.SecretKey,
 });
-var upLoad=function (files,req,res,buffer){
-  console.log(req.query)
-  
-  var key = config.path+'/'+files.file.name
+const checkFile = (key, cb) => {
+  cos.headObject({
+    Bucket: config.Bucket,
+    Region: config.Region,
+    Key: key //查询key
+  }, cb);
+};
+const osPut = (files,key,res,buffer) =>{
   cos.putObject({
     Bucket: config.Bucket,
     Region: config.Region,
@@ -25,9 +29,43 @@ var upLoad=function (files,req,res,buffer){
     if (err) {
       res.send(err)
     } else {
-      res.send(data)
+      if(data.statusCode === 200){
+        data.url = config.osHost +key;
+        res.send(data)
+      }else{
+        res.send(data)
+      }
     }
   })
+}
+var upLoad=function (files,req,res,buffer){
+  var path = req.query.path || config.path;
+  var replace = req.query.replace || '';
+  var key = path+'/'+files.file.name
+  if(replace&&replace=='true'){
+    osPut(files,key,res,buffer)
+  }else{
+    checkFile(key,function(err,data){
+      if (err) {
+        if (err.statusCode == 404) {
+          osPut(files,key,res,buffer)
+        } else {
+          fs.unlink(files.file.path)
+          res.send(err)
+        }
+      } else {
+        if(data.statusCode == 200) {
+          data.msg = '文件已存在'
+          data.url = config.osHost +key;
+          fs.unlink(files.file.path)
+          res.send(data);
+        } else {
+          osPut(files,key,res,buffer);
+        }
+      }
+    })
+  }
+
 };
 router.post('/upload',function (req, res) {
   var form = new formidable.IncomingForm();
