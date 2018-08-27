@@ -12,6 +12,7 @@ const cos = new COS({
 });
 var upLoad=function (files,req,res,buffer){
   console.log(req.query)
+  
   var key = config.path+'/'+files.file.name
   cos.putObject({
     Bucket: config.Bucket,
