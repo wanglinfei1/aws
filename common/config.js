@@ -16,8 +16,16 @@ var products= {
     dbName : 'test',
 };
 var codeMsg = {}
+var osconfig = {
+    SecretId: 'AKIDSijU2L7IuISN3UbeNr67tQ3ScXDejpY2',
+    SecretKey: 'OYT9cqqb8RVLwIPHuIRM2UhkY5MN8dtt',
+    Bucket: 'wlinfei-1255388564',
+    Region: 'ap-chengdu',
+    path:'/upload'
+};
 module.exports ={
     start:dev,
     dev:dev,
-    codeMsg:codeMsg
+    codeMsg:codeMsg,
+    osconfig:osconfig
 }
