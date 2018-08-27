@@ -7,6 +7,7 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 const favicon = require('express-favicon');
 var app = express();
+
 app.use(favicon(__dirname + '/awsroot/static/image/favicon.ico'));
 app.use(cookieParser('sessiontest'));
 app.use(session({
