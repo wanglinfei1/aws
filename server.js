@@ -7,7 +7,8 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 const favicon = require('express-favicon');
 var app = express();
-app.use(favicon(__dirname + '../_nginxroot_/static/image/favicon.ico'));
+console.log(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico'))
+app.use(favicon(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico')));
 app.use(cookieParser('sessiontest'));
 app.use(session({
     secret: 'sessiontest',
@@ -27,7 +28,7 @@ var upload = require('./apiJS/upLoad')
 
 app.use(bodyParser.urlencoded({extended: false,"limit":"30000kb"}));
 app.use(bodyParser.json({ "limit":"30000kb"}));
-app.use(express.static('../_nginxroot_'));
+app.use(express.static(path.resolve(__dirname, '../_nginxroot_')));
 var originArr = []
 app.use('/*',function (req, res, next) {
     var origin = req.headers.origin;
