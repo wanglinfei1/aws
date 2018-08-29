@@ -7,7 +7,6 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 const favicon = require('express-favicon');
 var app = express();
-console.log(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico'))
 app.use(favicon(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico')));
 app.use(cookieParser('sessiontest'));
 app.use(session({
@@ -29,7 +28,7 @@ var upload = require('./apiJS/upLoad')
 app.use(bodyParser.urlencoded({extended: false,"limit":"30000kb"}));
 app.use(bodyParser.json({ "limit":"30000kb"}));
 app.use(express.static(path.resolve(__dirname, '../_nginxroot_')));
-var originArr = []
+var originArr = []; //要允许跨域的白名单列表
 app.use('/*',function (req, res, next) {
     var origin = req.headers.origin;
     if(origin&&((origin.indexOf('wzytop.top')>-1)||(originArr.indexOf(origin)>-1))){

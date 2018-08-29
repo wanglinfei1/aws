@@ -17,63 +17,109 @@ const checkFile = (key, cb) => {
     Key: key //查询key
   }, cb);
 };
-const osPut = (files,key,res,buffer) =>{
+const osPut = (files,query,key,res,buffer,resArr) =>{
   cos.putObject({
     Bucket: config.Bucket,
     Region: config.Region,
     Key: key,
-    'ContentLength':files.file.size,
+    'ContentLength':files.size,
     Body: buffer,
   }, function(err, data) {
-    fs.unlink(files.file.path)
+    fs.unlink(files.path)
     if (err) {
-      res.send(err)
+      if(resArr.length<query.lg-1){
+        resArr.push(err)
+      }else{
+        resArr.push(err)
+        res.send(resArr)
+      }
     } else {
       if(data.statusCode === 200){
         data.url = config.osHost +key;
-        res.send(data)
+        if(resArr.length<query.lg-1){
+          resArr.push(data)
+        }else{
+          resArr.push(data)
+          res.send(resArr)
+        }
       }else{
-        res.send(data)
+        if(resArr.length<lg.length-1){
+          resArr.push(data)
+        }else{
+          resArr.push(data)
+          res.send(resArr)
+        }
       }
     }
   })
 }
-var upLoad=function (files,req,res,buffer){
-  var path = req.query.path || config.path;
-  var replace = req.query.replace || '';
-  var key = path+'/'+files.file.name
+var upLoad = function (files,query,res,buffer,resArr){
+  var path = query.path || config.path;
+  if((path.indexOf('http://')>-1||path.indexOf('https://')>-1)){
+    path = path.replace(/http[s]?:\/\/ftp\.wzytop\.top/g,'')||'/'
+  }
+  var replace = query.replace || '';
+  var key = path+files.name
   if(replace&&replace=='true'){
     osPut(files,key,res,buffer)
   }else{
     checkFile(key,function(err,data){
       if (err) {
         if (err.statusCode == 404) {
-          osPut(files,key,res,buffer)
+          osPut(files,query,key,res,buffer,resArr)
         } else {
-          fs.unlink(files.file.path)
-          res.send(err)
+          fs.unlink(files.path)
+          if(resArr.length<query.lg-1){
+            resArr.push(err)
+          }else{
+            resArr.push(err)
+            res.send(resArr)
+          }
         }
       } else {
         if(data.statusCode == 200) {
           data.msg = '文件已存在'
           data.url = config.osHost +key;
-          fs.unlink(files.file.path)
-          res.send(data);
+          fs.unlink(files.path)
+          if(resArr.length<query.lg-1){
+            resArr.push(data)
+          }else{
+            resArr.push(data)
+            res.send(resArr)
+          }
         } else {
-          osPut(files,key,res,buffer);
+          osPut(files,query,key,res,buffer,resArr);
         }
       }
     })
   }
-
 };
 router.post('/upload',function (req, res) {
   var form = new formidable.IncomingForm();
   form.uploadDir = "./dir";
   form.keepExtensions = true;
+  var resArr = [];
+  var filesArr = [];
+  var query = req.query;
   form.parse(req, function(err, fields, files) {
-    var buffer = fs.createReadStream(files.file.path)
-    upLoad(files,req,res,buffer)
+    if(!query['lg']){
+        for(var k in files){
+          if(files[k]){
+           filesArr.push(files[k])
+          }
+        }
+        query['lg']=filesArr.length;
+    }
+    for(var k in files){
+      if(files[k]){
+        try{
+          var buffer = fs.createReadStream(files[k].path)
+          upLoad(files[k],query,res,buffer,resArr)
+        }catch(err){
+          console.log(err)
+        }
+      }
+    }
   });
 });
 module.exports = router;
