@@ -21,7 +21,7 @@ var osconfig = {
     SecretKey: 'OYT9cqqb8RVLwIPHuIRM2UhkY5MN8dtt',
     Bucket: 'wlinfei-1255388564',
     Region: 'ap-chengdu',
-    path:'/upload',
+    path:'/upload/',
     osHost:'http://ftp.wzytop.top'
 };
 module.exports ={
