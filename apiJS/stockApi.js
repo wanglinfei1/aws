@@ -6,12 +6,14 @@ var express = require('express');
 var router = express.Router();
 var UUID = require('./../common/uuid-v4');
 var tabName = 'test'
+var NODE_ENV = process.env.NODE_ENV
 router.get('/stockApi/stock/:id',(req,res) => {
   var stockId = req.params.id;
   if(stockId){
     dbHandler('find',tabName,{"id":stockId}).then(data =>{
       res.send({code:0,data:data,  msg:'请求成功'})
     }).catch(err => {
+      console.log(err)
       res.send(err)
     });
   }else{

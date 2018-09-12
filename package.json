@@ -4,9 +4,10 @@
   "author": "bae",
   "description": "The first bae nodejs app!",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "forever_start": "forever start server.js",
+    "dev": "SET NODE_ENV=dev&&node server.js",
+    "pro": "node server.js",
+    "forever_dev": "SET NODE_ENV=dev&&forever start server.js",
+    "forever_pro": "forever start server.js",
     "forever_stop": "forever stop server.js",
     "forever_restart": "forever restart server.js"
   },

@@ -5,7 +5,7 @@ var mongo=require("mongodb");//@2.2.11
 var MongoClient = mongo.MongoClient;
 var assert = require('assert');
 var __config = require('./config.js');
-var envType = process.env.npm_lifecycle_event=='start'?'start':'dev';
+var envType = process.env.NODE_ENV=='dev'?'dev':'pro';
 var config = __config[envType];
 var db_host = config.host,
     db_port = config.port,
