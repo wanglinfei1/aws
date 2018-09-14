@@ -11,8 +11,8 @@ var pro= {
  var dev = {
     host : 'localhost',
     port : 27017,
-    username : '',
-    password : '',
+    username : 'admin',
+    password : '123456',
     dbName : 'test',
 };
 var codeMsg = {}

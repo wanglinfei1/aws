@@ -84,13 +84,9 @@ router.get('/typeComApi/list', (req, res) => {
   if(sort){
     json['time'] = sort;
   }
-  var total
-  dbHandler('find',tabName,queryList).then(data => {
-    total = data.length;
-    dbHandler('findList',tabName,[queryList,skip,limit,json]).then(data => {
-      res.send({code:0,data:data,  msg:'请求成功',total:total})
-    })
-  });
+  dbHandler('findList',tabName,[queryList,skip,limit,json]).then(data => {
+    res.send({code:0,data:data,  msg:'请求成功',total:data.length})
+  })
 });
 
 module.exports = router;
