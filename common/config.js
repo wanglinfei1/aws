@@ -3,7 +3,7 @@
  */
 var pro= {
     host : '118.24.172.195',
-    port : 27017,
+    port : 27027,
     username : 'root',
     password : 'wang%401206',
     dbName : 'test',
