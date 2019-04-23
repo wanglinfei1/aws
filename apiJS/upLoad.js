@@ -56,7 +56,7 @@ const osPut = (files, query, key, res, buffer, resArr) => {
 var upLoad = function(files, query, res, buffer, resArr) {
     var path = query.path || config.path;
     if ((path.indexOf('http://') > -1 || path.indexOf('https://') > -1)) {
-        path = path.replace(/http[s]?:\/\/ftp\.wzytop\.top/g, '') || '/'
+        path = path.replace(/http[s]?:\/\/ftp\.wzytop\.cn/g, '') || '/'
     }
     var replace = query.replace || '';
     var key = path + files.name

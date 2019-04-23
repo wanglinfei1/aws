@@ -188,8 +188,17 @@ var CHECK_ID_CARD = (function(area_json) {
 
 router.get('/checkcard', (req, res) => {
     var cardid = req.query.id || '';
-    var checkCarded = CHECK_ID_CARD(cardid)
-    res.send({ code: 0, data: checkCarded, msg: '请求成功' });
+    var callback = req.query.callback || '';
+    var checkCarded = CHECK_ID_CARD(cardid);
+    console.log(callback, checkCarded);
+    var resJson = { code: 0, data: checkCarded, msg: '请求成功' };
+    if (callback) {
+        var resData = "try{" + callback + "(" + JSON.stringify(resJson) + ");}catch(e){};"
+        res.type('text/javascript;charset=utf-8');
+        res.send(resData);
+    } else {
+        res.send(resJson);
+    }
 });
 
 module.exports = router;
