@@ -85,7 +85,12 @@ var CHECK_ID_CARD = (function(area_json) {
         if (!!area_json && area != 71 && area != 81 && area != 82 && area != 91) {
             var _area_ = obj.substr(0, 6);
             if (area_json[_area_] == undefined) {
-                return false;
+                var _area_2_ = obj.substr(0, 4) + '00';
+                if (area_json[_area_2_] == undefined) {
+                    return false;
+                } else {
+                    area_txt = area_json[_area_2_]
+                }
             } else {
                 area_txt = area_json[_area_]
             }
