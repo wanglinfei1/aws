@@ -24,9 +24,18 @@ var osconfig = {
     path: '/upload/',
     osHost: 'http://ftp.wzytop.cn'
 };
+var os_dev_config = {
+    SecretId: 'AKIDiEVWHoR6rNefQw9G6g04sQikWaQ2BbZI',
+    SecretKey: 'd2DArIUQ8bolTvBD0Zt36vUnqdARWLuD',
+    Bucket: 'lg-duaeoj4c-1255449337',
+    Region: 'ap-shanghai',
+    path: '/upload/',
+    osHost: '//ftp.wzytop.xyz'
+};
 module.exports = {
     pro: pro,
     dev: dev,
     codeMsg: codeMsg,
-    osconfig: osconfig
+    osconfig: osconfig,
+    os_dev_config: os_dev_config
 }

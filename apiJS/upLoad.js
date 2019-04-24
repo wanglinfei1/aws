@@ -5,7 +5,7 @@ const request = require('request');
 const formidable = require("formidable");
 var config = require('../common/config.js');
 const fs = require('fs');
-config = config.osconfig;
+config = process.env.NODE_ENV == 'dev' ? config.os_dev_config : config.osconfig;
 const cos = new COS({
     SecretId: config.SecretId,
     SecretKey: config.SecretKey,
