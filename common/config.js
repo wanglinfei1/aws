@@ -15,6 +15,9 @@ var dev = {
     password: '123456',
     dbName: 'test',
 };
+var cross_domain = [
+
+];
 var codeMsg = {}
 var osconfig = {
     SecretId: 'AKIDSijU2L7IuISN3UbeNr67tQ3ScXDejpY2',
@@ -37,5 +40,7 @@ module.exports = {
     dev: dev,
     codeMsg: codeMsg,
     osconfig: osconfig,
-    os_dev_config: os_dev_config
+    os_dev_config: os_dev_config,
+    cross_domain: cross_domain
+
 }

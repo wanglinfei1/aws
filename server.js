@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 const favicon = require('express-favicon');
+var __config = require('./common/config');
 var app = express();
 app.use(favicon(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico')));
 app.use(cookieParser('sessiontest'));
@@ -30,11 +31,11 @@ var checkCard = require('./apiJS/checkCard')
 app.use(bodyParser.urlencoded({ extended: false, "limit": "30000kb" }));
 app.use(bodyParser.json({ "limit": "30000kb" }));
 app.use(express.static(path.resolve(__dirname, '../_nginxroot_')));
-var originArr = []; //要允许跨域的白名单列表
+var originArr = __config.cross_domain || []; //要允许跨域的白名单列表
 app.use('/*', function(req, res, next) {
     var origin = req.headers.origin;
-    var replaceOrigin = origin ? origin.replace(/http[s]?:\/\//g, '') : '';
-    if (origin && ((origin.indexOf('wzytop.cn') > -1) || (origin.indexOf('wzytop.xyz') > -1) || (origin.indexOf('wzytop.top') > -1) || (originArr.indexOf(replaceOrigin) > -1))) {
+    var replaceOrigin = origin ? origin.replace(/^((http:|https:)?\/\/)|\/$/g, '') : '';
+    if (origin && ((origin.indexOf('wzytop.cn') > -1) || (origin.indexOf('wzytop.xyz') > -1) || (originArr.indexOf(replaceOrigin) > -1))) {
         res.header("Access-Control-Allow-Origin", origin);
         res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
