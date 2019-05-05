@@ -15,17 +15,15 @@ var dev = {
     password: '123456',
     dbName: 'test',
 };
-var cross_domain = [
-
-];
-var codeMsg = {}
+var cross_domain = [];
+var codeMsg = {};
 var osconfig = {
     SecretId: 'AKIDSijU2L7IuISN3UbeNr67tQ3ScXDejpY2',
     SecretKey: 'OYT9cqqb8RVLwIPHuIRM2UhkY5MN8dtt',
     Bucket: 'wlinfei-1255388564',
     Region: 'ap-chengdu',
     path: '/upload/',
-    osHost: 'http://ftp.wzytop.cn'
+    osHost: '//ftp.wzytop.cn'
 };
 var os_dev_config = {
     SecretId: 'AKIDiEVWHoR6rNefQw9G6g04sQikWaQ2BbZI',
