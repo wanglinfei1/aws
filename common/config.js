@@ -40,5 +40,4 @@ module.exports = {
     osconfig: osconfig,
     os_dev_config: os_dev_config,
     cross_domain: cross_domain
-
 }
