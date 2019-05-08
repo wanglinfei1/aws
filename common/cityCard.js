@@ -4174,5 +4174,15 @@ var _AREAJSON_ = {
     "659003": "新疆维吾尔自治区图木舒克市",
     "659004": "新疆维吾尔自治区五家渠市"
 }
+var _AREAJSON_ARR_ = (function() {
+    var _AREAJSON_ARR_ = [];
+    for (var key in _AREAJSON_) {
+        _AREAJSON_ARR_.push(key);
+    }
+    return _AREAJSON_ARR_;
+})();
 
-module.exports = _AREAJSON_
+module.exports = {
+    _AREAJSON_: _AREAJSON_,
+    _AREAJSON_ARR_: _AREAJSON_ARR_
+}
