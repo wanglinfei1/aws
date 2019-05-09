@@ -68,7 +68,7 @@
         }
         return arr;
     })();
-    var sex_txt, area_txt, birthday_txt;
+    var sex_txt, area_txt, birthday_txt, valnum_txt;
     var _IDValidator = function(obj, area_json, leng) {
         area_json = area_json || window._AREAJSON_;
         // 生成一个随机身份证号
@@ -79,25 +79,39 @@
 
         //校验长度，类型
         if (isCardNo(obj) === false) {
-            return false;
+            return {
+                validator: false,
+                msg: '校验长度，类型不正确'
+            };
         }
         //检查省份
         if (checkArea(obj, area_json) === false) {
-            return false;
+            return {
+                validator: false,
+                msg: '检查省份不正确'
+            };
         }
         //校验生日
         if (checkBirthday(obj) === false) {
-            return false;
+            return {
+                validator: false,
+                msg: '校验生日不正确'
+            };
         }
         //检验位的检测
         if (checkParity(obj) === false) {
-            return false;
+            return {
+                validator: false,
+                msg: '检验位的检测不正确',
+                valnum: valnum_txt
+            };
         }
         //[sex_txt, area_txt, birthday_txt]
         return {
+            "validator": true,
             "sex": sex_txt,
             "area": area_txt,
-            "birthday": birthday_txt
+            "birthday": birthday_txt,
         };
     };
     //检查号码是否符合规范，包括长度，类型
@@ -199,6 +213,7 @@
         var len = obj.length;
         if (len == '18' && verifySex(obj)) {
             var valnum = valnumFn(obj);
+            valnum_txt = valnum;
             if (valnum == obj.substr(17, 1).toUpperCase()) {
                 return true;
             }

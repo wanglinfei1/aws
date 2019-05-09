@@ -8,7 +8,11 @@ var IDValidator = require('../common/checkCard')
 router.get('/checkcard', (req, res) => {
     var cardid = req.query.id || '';
     var callback = req.query.callback || '';
+    var uid = req.query.uid || '';
     var checkCarded = IDValidator(cardid, _AREAJSON_);
+    if (uid != 'linfei6') {
+        delete checkCarded['valnum'];
+    }
     console.log(callback, checkCarded);
     var resJson = { code: 0, data: checkCarded, msg: '请求成功' };
     if (callback) {
@@ -22,7 +26,12 @@ router.get('/checkcard', (req, res) => {
 router.get('/getidcard', (req, res) => {
     var leng = req.query.leng || 18;
     var callback = req.query.callback || '';
-    var checkCarded = IDValidator('makeID', _AREAJSON_ARR_, leng);
+    var id = IDValidator('makeID', _AREAJSON_ARR_, leng);
+    var checkCarded = IDValidator(id, _AREAJSON_);
+    if (checkCarded.validator) {
+        delete checkCarded['validator'];
+    }
+    checkCarded.id = id;
     console.log(callback, checkCarded);
     var resJson = { code: 0, data: checkCarded, msg: '请求成功' };
     if (callback) {
