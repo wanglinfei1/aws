@@ -16,7 +16,7 @@ var dev = {
     dbName: 'test',
 };
 var cross_domain = [
-    'http://wlf.sina.com.cn'
+    'wlf.sina.com.cn'
 ];
 var codeMsg = {};
 var osconfig = {
