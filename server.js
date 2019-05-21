@@ -41,6 +41,9 @@ app.use('/*', function(req, res, next) {
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
         res.header('Access-Control-Allow-Headers', 'Content-Type');
     }
+    if (!req.cookies.__UBP__) {
+        res.cookie("__UBP__", 'linfei6', { domain: '.wzytop.cn', path: '/', maxAge: 24 * 60 * 60 * 1000, httpOnly: false });
+    }
     next();
 });
 app.use('', musicApi);

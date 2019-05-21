@@ -15,7 +15,9 @@ var dev = {
     password: '123456',
     dbName: 'test',
 };
-var cross_domain = [];
+var cross_domain = [
+    'http://wlf.sina.com.cn'
+];
 var codeMsg = {};
 var osconfig = {
     SecretId: 'AKIDSijU2L7IuISN3UbeNr67tQ3ScXDejpY2',
