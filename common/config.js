@@ -1,5 +1,5 @@
 /**
- * Created by wanglinfei on 2017/11/10.
+ * Created by wanglinfei on 2018/11/10.
  */
 var pro = {
     host: '118.24.172.195',
@@ -36,6 +36,7 @@ var os_dev_config = {
     path: '/upload/',
     osHost: '//ftp.wzytop.xyz'
 };
+
 module.exports = {
     pro: pro,
     dev: dev,
