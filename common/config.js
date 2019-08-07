@@ -17,6 +17,7 @@ var dev = {
 };
 var cross_domain = [
     'wlf.sina.com.cn',
+    'wlf.sina.com.cn:8080',
     'sports.sina.com.cn'
 ];
 var codeMsg = {};
