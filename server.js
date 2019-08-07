@@ -8,6 +8,7 @@ var cookieParser = require('cookie-parser');
 const favicon = require('express-favicon');
 var __config = require('./common/config');
 var app = express();
+
 app.use(favicon(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico')));
 app.use(cookieParser('sessiontest'));
 app.use(session({
@@ -31,7 +32,7 @@ var checkCard = require('./apiJS/checkCard')
 app.use(bodyParser.urlencoded({ extended: false, "limit": "30000kb" }));
 app.use(bodyParser.json({ "limit": "30000kb" }));
 app.use(express.static(path.resolve(__dirname, '../_nginxroot_')));
-var originArr = __config.cross_domain || []; //要允许跨域的白名单列表
+var originArr = __config.cross_domain || []; //要允许跨域的白名单列表;
 app.use('/*', function(req, res, next) {
     var origin = req.headers.origin;
     var replaceOrigin = origin ? origin.replace(/^((http:|https:)?\/\/)|\/$/g, '') : '';
