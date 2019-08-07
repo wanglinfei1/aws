@@ -8,6 +8,7 @@ var cookieParser = require('cookie-parser');
 const favicon = require('express-favicon');
 var __config = require('./common/config');
 var app = express();
+
 app.use(favicon(path.resolve(__dirname, '../_nginxroot_/static/image/favicon.ico')));
 app.use(cookieParser('sessiontest'));
 app.use(session({
