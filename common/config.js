@@ -1,5 +1,5 @@
 /**
- * Created by wanglinfei on 2017/11/10.
+ * Created by wanglinfei on 2018/11/10.
  */
 
 var pro = {
@@ -18,6 +18,7 @@ var dev = {
 };
 var cross_domain = [
     'wlf.sina.com.cn',
+    'wlf.sina.com.cn:8080',
     'sports.sina.com.cn'
 ];
 var codeMsg = {};
@@ -37,6 +38,7 @@ var os_dev_config = {
     path: '/upload/',
     osHost: '//ftp.wzytop.xyz'
 };
+
 module.exports = {
     pro: pro,
     dev: dev,
