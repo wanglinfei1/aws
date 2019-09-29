@@ -194,7 +194,15 @@ apiRouter.get('/getOtherHost', function (req, res) {
     headers: headers,
     params: params
   }).then(response => {
-    ressend(req, res, response.data)
+    var ret = response.data
+    if (typeof ret === 'string') {
+      var reg = /^\w+\(({[^()]+})\)$/
+      var matches = ret.match(reg)
+      if (matches) {
+        ret = JSON.parse(matches[1])
+      }
+    }
+    ressend(req, res, ret)
   }).catch(error => {
     ressend(req, res, error)
   })
