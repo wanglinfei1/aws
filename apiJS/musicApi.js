@@ -207,5 +207,28 @@ apiRouter.get('/getOtherHost', function (req, res) {
     ressend(req, res, error)
   })
 });
+apiRouter.get('/downloadFile', function (req, res) {
+  var url = req.query.url || '';
+  if (!url) {
+    ressend(req, res, { code: 11, data: '', msg: '缺少资源url参数' })
+  }
+
+  var headers = {}, params = {};
+  try {
+    headers = req.query.headers ? JSON.parse(req.query.headers) : {};
+    params = req.query.params ? JSON.parse(req.query.params) : {};
+  } catch (err) {
+    console.log(err)
+  }
+
+  try {
+    axios.get(url, {
+      headers: headers,
+      params: params
+    }).pipe(res);
+  } catch (err) {
+    ressend(req, res, error)
+  }
+});
 module.exports = apiRouter;
 
