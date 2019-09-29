@@ -177,12 +177,16 @@ apiRouter.get('/getCommonApi', function (req, res) {
   })
 });
 apiRouter.get('/getOtherHost', function (req, res) {
-  var url = req.url || '';
+  var url = req.query.url || '';
   if (!url) {
     ressend(req, res, { code: 11, data: '', msg: '缺少其他服务url参数' })
   }
+  var headers = JSON.parse(req.query.headers) || {};
+  var params = JSON.parse(req.query.params) || {};
+ 
   axios.get(url, {
-    params: req.query.params || {}
+    headers: headers,
+    params: params
   }).then(response => {
     ressend(req, res, response.data)
   }).catch(error => {
