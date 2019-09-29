@@ -3,7 +3,9 @@
  */
 var express = require('express');
 var apiRouter = express.Router();
+var ressend = require('../common/ressend')
 var axios = require('axios');
+
 apiRouter.get('/getList', function (req, res) {
   var url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
   axios.get(url, {
@@ -34,8 +36,8 @@ apiRouter.get('/getPlaylist', function (req, res) {
 });
 apiRouter.get('/getDiscList', function (req, res) {
   var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
-  var query=req.query
-  var refererUrl = "https://y.qq.com/n/yqq/playlist/"+query.disstid+".html"
+  var query = req.query
+  var refererUrl = "https://y.qq.com/n/yqq/playlist/" + query.disstid + ".html"
   axios.get(url, {
     headers: {
       "origin": "http://y.qq.com",
@@ -115,14 +117,14 @@ apiRouter.post('/CgiGetVkey', function (req, res) {
   var url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
   console.log(req.body.data)
   axios({
-    method:"post",
-    url:url,
+    method: "post",
+    url: url,
     headers: {
-      "authority":" u.y.qq.com",
+      "authority": " u.y.qq.com",
       "origin": "http://y.qq.com",
       "referer": "http://y.qq.com"
     },
-    data:req.body.data
+    data: req.body.data
   }).then(response => {
     res.json(response.data)
   }).catch(error => {
@@ -133,14 +135,14 @@ apiRouter.get('/CgiGetVkey', function (req, res) {
   var url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
   console.log(req.body.data)
   axios({
-    method:"post",
-    url:url,
+    method: "post",
+    url: url,
     headers: {
-      "authority":" u.y.qq.com",
+      "authority": " u.y.qq.com",
       "origin": "http://y.qq.com",
       "referer": "http://y.qq.com"
     },
-    data:req.query.data
+    data: req.query.data
   }).then(response => {
     res.json(response.data)
   }).catch(error => {
@@ -151,13 +153,13 @@ apiRouter.get('/getCommonApi', function (req, res) {
   var url = req.query.url;
   var header = req.query.header;
   var urlData = req.query.urlData;
-  if(urlData){
-    url += ('?'+urlData.replace(/\$/g,'&'))
+  if (urlData) {
+    url += ('?' + urlData.replace(/\$/g, '&'))
   }
   axios.get(url, {
     headers: {
-      "origin": header&&header.origin?header.origin:"https://m.qq.com",
-      "referer": header&&header.referer?header.referer:"https://m.qq.com/"
+      "origin": header && header.origin ? header.origin : "https://m.qq.com",
+      "referer": header && header.referer ? header.referer : "https://m.qq.com/"
     },
     params: req.query.data
   }).then(response => {
@@ -171,7 +173,20 @@ apiRouter.get('/getCommonApi', function (req, res) {
     }
     res.json(ret)
   }).catch(error => {
-    console.log('error=============================================================='+error)
+    console.log('error==============================================================' + error)
+  })
+});
+apiRouter.get('/getOtherHost', function (req, res) {
+  var url = req.url || '';
+  if (!url) {
+    ressend(req, res, { code: 11, data: '', msg: '缺少其他服务url参数' })
+  }
+  axios.get(url, {
+    params: req.query.params || {}
+  }).then(response => {
+    ressend(req, res, response.data)
+  }).catch(error => {
+    ressend(req, res, error)
   })
 });
 module.exports = apiRouter;
