@@ -3,6 +3,7 @@
  */
 var express = require('express');
 var apiRouter = express.Router();
+var request = require('request');
 var ressend = require('../common/ressend')
 var axios = require('axios');
 
@@ -220,11 +221,11 @@ apiRouter.get('/downloadFile', function (req, res) {
   } catch (err) {
     console.log(err)
   }
-
+  console.log(url)
   try {
-    axios.get(url, {
+    request.get({
       headers: headers,
-      params: params
+      url: url
     }).pipe(res);
   } catch (err) {
     ressend(req, res, error)
