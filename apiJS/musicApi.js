@@ -181,9 +181,15 @@ apiRouter.get('/getOtherHost', function (req, res) {
   if (!url) {
     ressend(req, res, { code: 11, data: '', msg: '缺少其他服务url参数' })
   }
-  var headers = JSON.parse(req.query.headers) || {};
-  var params = JSON.parse(req.query.params) || {};
- 
+
+  var headers = {}, params = {};
+  try {
+    headers = req.query.headers ? JSON.parse(req.query.headers) : {};
+    params = req.query.params ? JSON.parse(req.query.params) : {};
+  } catch (err) {
+    console.log(err)
+  }
+
   axios.get(url, {
     headers: headers,
     params: params
