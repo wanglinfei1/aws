@@ -29,8 +29,8 @@ var getPuppeteerData = async function (req, res) {
             headless: true,
             // devtools: true
         };
-        
-        const browser = await puppeteer.launch();
+
+        const browser = await puppeteer.launch(launchConfig);
 
         const page = await browser.newPage();
         await page.emulate(devices['iPhone 6'])
