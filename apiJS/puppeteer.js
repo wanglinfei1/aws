@@ -22,6 +22,7 @@ var sleep = time => {
 
 var getPuppeteerData = async function (req, res) {
     var url = req.query.url || '';
+    url = decodeURIComponent(url)
     try {
         var launchConfig = {
             args: ['--no-sandbox', '--disable-setuid-sandbox'],//不是沙箱模式
