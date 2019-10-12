@@ -57,12 +57,12 @@ var getPuppeteerData = async function (req, res) {
                     var attrs = {};
                     for (var i = 0; i < attrArr.length; i++) {
                         var attr = attrArr[i]
-                        var attr_val = $el.attr(attr) || ''
+                        var attr_val = attr == 'html' ? ($el.html() || '') : ($el.attr(attr) || '')
                         attrs[attr] = attr_val || '';
                     }
                     _result.attrs = attrs
                 }
-                
+
                 if (keyArr && keyArr.length) {
                     var pagedata = {};
                     for (var i = 0; i < keyArr.length; i++) {
