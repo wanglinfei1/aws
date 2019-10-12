@@ -23,12 +23,14 @@ var sleep = time => {
 var getPuppeteerData = async function (req, res) {
     var url = req.query.url || '';
     try {
-        const browser = await puppeteer.launch({
+        var launchConfig = {
             args: ['--no-sandbox', '--disable-setuid-sandbox'],//不是沙箱模式
             dumpio: false,
             headless: true,
             // devtools: true
-        });
+        };
+        
+        const browser = await puppeteer.launch();
 
         const page = await browser.newPage();
         await page.emulate(devices['iPhone 6'])
