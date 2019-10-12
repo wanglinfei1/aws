@@ -43,19 +43,35 @@ var getPuppeteerData = async function (req, res) {
         const result = await page.evaluate((reqQuery) => {
             try {
                 var $ = window.$
-                var _result = {};
+                var _result = {
+                    attrs: {},
+                    pagedata: {}
+                };
 
-                var key = reqQuery.key || 'songlist';
+                var keyArr = (reqQuery.key || 'songlist').split(',');
                 var select = reqQuery.select || '#h5audio_media';
-                var attr = reqQuery.attr || 'src';
+                var attrArr = (reqQuery.attr || 'src').split(',');
 
                 var $el = $(select);
-                var topsrc = $el ? $el.attr(attr) || '' : ''
-                if (topsrc) {
-                    _result[attr] = topsrc
+                if ($el && $el.length && attrArr && attrArr.length) {
+                    var attrs = {};
+                    for (var i = 0; i < attrArr.length; i++) {
+                        var attr = attrArr[i]
+                        var attr_val = $el.attr(attr) || ''
+                        attrs[attr] = attr_val || '';
+                    }
+                    _result.attrs = attrs
+                }
+                
+                if (keyArr && keyArr.length) {
+                    var pagedata = {};
+                    for (var i = 0; i < keyArr.length; i++) {
+                        var key = keyArr[i]
+                        pagedata[key] = window[key] || null;
+                    }
+                    _result.pagedata = pagedata
                 }
 
-                _result[key] = window[key] || [];
                 return _result
             } catch (err) {
                 return err
