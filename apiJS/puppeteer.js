@@ -24,7 +24,7 @@ var getPuppeteerData = async function (req, res) {
     var url = req.query.url || '';
     try {
         const browser = await puppeteer.launch({
-            args: ['--no-sandbox'],//不是沙箱模式
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],//不是沙箱模式
             dumpio: false,
             headless: true,
             // devtools: true
