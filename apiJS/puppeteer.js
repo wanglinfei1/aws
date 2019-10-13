@@ -68,7 +68,7 @@ var getPuppeteerData = async function(req, res) {
         var select = reqQuery.select || '#h5audio_media';
         var attrArr = (reqQuery.attr || 'src').split(',');
 
-        var $el = $(select);
+        var $el = $ ? $(select) : '';
         if ($el && $el.length && attrArr && attrArr.length) {
           var attrs = {};
           for (var i = 0; i < attrArr.length; i++) {
