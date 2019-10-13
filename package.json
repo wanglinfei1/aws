@@ -4,7 +4,7 @@
   "author": "bae",
   "description": "The first bae nodejs app!",
   "scripts": {
-    "dev": "SET NODE_ENV=dev&&node server.js",
+    "dev": "node server.js",
     "pro": "node server.js",
     "forever_dev": "SET NODE_ENV=dev&&forever start server.js",
     "forever_pro": "forever start server.js",
