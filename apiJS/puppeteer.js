@@ -4,6 +4,7 @@ var ressend = require('../common/ressend')
 var puppeteer = require('puppeteer')
 var devices = require('puppeteer/DeviceDescriptors')
 var charset = require('superagent-charset'); //解决乱码问题:
+var cheerio = require('cheerio'); //可以像jquer一样操作界面
 var superagent = require('superagent'); //发起请求
 charset(superagent);
 var cheerio = require('cheerio');
@@ -19,10 +20,13 @@ var sleep = time => {
   })
 };
 
-var getPuppeteerData = async function(req, res) {
+var getPuppeteerData = async function (req, res) {
   var reqQuery = Object.assign({}, req.query || {}, req.body || {})
   var url = reqQuery.url || '';
-  url = decodeURIComponent(url)
+  try {
+    url = decodeURIComponent(url)
+  } catch (err) { }
+
   try {
     if (!url) {
       var resultJSon = { code: 13, data: '缺少必须的url参数', msg: '请求失败' };
@@ -46,29 +50,24 @@ var getPuppeteerData = async function(req, res) {
     // await sleep(30)
     // await page.waitForSelector('#h5audio_media')
     const result = await page.evaluate((reqQuery) => {
-      try {
-        var $ = window.$
-        var reqQueryFn
-        var _result = {
-          attrs: {},
-          pagedata: {}
-        };
+      var $ = window.$
+      var _result = {};
 
-        try {
+      try {
+        var reqQueryFn
+        if (reqQuery.fn) {
           reqQueryFn = eval('(' + reqQuery.fn + ')')
-        } catch (err) {
-          console.log(err)
         }
         var fndata = (reqQueryFn && reqQueryFn(window, reqQuery)) || null
         if (fndata) {
           _result.fndata = fndata
         }
+      } catch (err) { }
 
-        var keyArr = (reqQuery.key || 'songlist').split(',');
-        var select = reqQuery.select || '#h5audio_media';
+      try {
+        var select = reqQuery.select;
+        var $el = $ && select ? $(select) : '';
         var attrArr = (reqQuery.attr || 'src').split(',');
-
-        var $el = $ ? $(select) : '';
         if ($el && $el.length && attrArr && attrArr.length) {
           var attrs = {};
           for (var i = 0; i < attrArr.length; i++) {
@@ -78,7 +77,10 @@ var getPuppeteerData = async function(req, res) {
           }
           _result.attrs = attrs
         }
+      } catch (err) { }
 
+      try {
+        var keyArr = reqQuery.key ? (reqQuery.key).split(',') : [];
         if (keyArr && keyArr.length) {
           var pagedata = {};
           for (var i = 0; i < keyArr.length; i++) {
@@ -87,37 +89,80 @@ var getPuppeteerData = async function(req, res) {
           }
           _result.pagedata = pagedata
         }
+      } catch (err) { }
 
-        return _result
-      } catch (err) {
-        return err
-      }
+      return _result
     }, reqQuery)
     browser.close()
     var resultJSon = { code: 0, data: result, msg: '请求成功' };
     ressend(req, res, resultJSon)
   } catch (err) {
-    console.log(err)
     var resultJSon = { code: 13, data: {}, msg: '请求失败' };
     ressend(req, res, resultJSon)
   }
 };
 
-var getSuperagentData = async function(req, res) {
+var getSuperagentData = async function (req, res) {
   var reqQuery = Object.assign({}, req.query || {}, req.body || {})
   var url = reqQuery.url || '';
-  url = decodeURIComponent(url)
+  try {
+    url = decodeURIComponent(url)
+  } catch (err) { }
+
+  if (!url) {
+    var resultJSon = { code: 13, data: '缺少必须的url参数', msg: '请求失败' };
+    ressend(req, res, resultJSon)
+    return
+  }
+
   try {
     superagent
       .get(url)
-      .end(function(err, ssres) {
+      .end(function (err, ssres) {
         if (err) {
-          var resultJSon = { code: 0, data: err, msg: '请求成功' };
+          var resultJSon = { code: 13, data: err, msg: '请求失败' };
+          ressend(req, res, resultJSon)
         } else {
-          // var $ = cheerio.load(ssres.text);
-          var resultJSon = { code: 0, data: ssres, msg: '请求成功' };
+          var reqResult = (function (reqQuery, ssres) {
+            var $ = cheerio.load(ssres.text);
+            var _result = {};
+
+            try {
+              var reqQueryFn
+              if (reqQuery.fn) {
+                reqQueryFn = eval('(' + reqQuery.fn + ')')
+              } else {
+                reqQueryFn = function ($, reqQuery) {
+                  return reqQuery
+                }
+              }
+              var fndata = (reqQueryFn && reqQueryFn($, reqQuery)) || null
+              if (fndata) {
+                _result.fndata = fndata
+              }
+            } catch (err) { }
+
+            try {
+              var select = reqQuery.select;
+              var attrArr = (reqQuery.attr || 'src').split(',');
+              var $el = $ && select ? $(select) : '';
+              if ($el && $el.length && attrArr && attrArr.length) {
+                var attrs = {};
+                for (var i = 0; i < attrArr.length; i++) {
+                  var attr = attrArr[i]
+                  var attr_val = attr == 'html' ? ($el.html() || '') : ($el.attr(attr) || '')
+                  attrs[attr] = attr_val || '';
+                }
+                _result.attrs = attrs
+              }
+            } catch (err) { }
+
+            return _result
+          })(reqQuery, ssres)
+
+          var resultJSon = { code: 0, data: reqResult, msg: '请求成功' };
+          ressend(req, res, resultJSon)
         }
-        ressend(req, res, resultJSon)
       });
   } catch (err) {
     var resultJSon = { code: 13, data: {}, msg: '请求失败' };
