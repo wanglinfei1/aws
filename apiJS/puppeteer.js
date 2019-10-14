@@ -114,10 +114,11 @@ var getSuperagentData = async function (req, res) {
     ressend(req, res, resultJSon)
     return
   }
-
+  var _charset = reqQuery.encoded || 'utf-8'
   try {
     superagent
       .get(url)
+      .charset(_charset) //解决编码问题
       .end(function (err, ssres) {
         if (err) {
           var resultJSon = { code: 13, data: err, msg: '请求失败' };
@@ -131,10 +132,6 @@ var getSuperagentData = async function (req, res) {
               var reqQueryFn
               if (reqQuery.fn) {
                 reqQueryFn = eval('(' + reqQuery.fn + ')')
-              } else {
-                reqQueryFn = function ($, reqQuery) {
-                  return reqQuery
-                }
               }
               var fndata = (reqQueryFn && reqQueryFn($, reqQuery)) || null
               if (fndata) {
