@@ -34,6 +34,7 @@ var getPuppeteerData = async function (req, res) {
       return
     }
     var launchConfig = {
+      ignoreHTTPSErrors: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'], //不是沙箱模式
       dumpio: false,
       headless: true,
