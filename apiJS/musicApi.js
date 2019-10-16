@@ -123,7 +123,7 @@ var CgiGetVkeyFn = function (req, res) {
     method: "post",
     url: url,
     headers: {
-      "authority": " u.y.qq.com",
+      "authority": "u.y.qq.com",
       "origin": "http://y.qq.com",
       "referer": "http://y.qq.com"
     },
