@@ -169,7 +169,8 @@ var getSuperagentData = async function (req, res) {
 }
 
 router.get('/puppeteer', (req, res) => {
-  if (req.query.type == 1) {
+  var reqQuery = Object.assign({}, req.query || {}, req.body || {})
+  if (reqQuery.type == 1) {
     getSuperagentData(req, res)
   } else {
     getPuppeteerData(req, res)
@@ -177,7 +178,8 @@ router.get('/puppeteer', (req, res) => {
 });
 
 router.post('/puppeteer', (req, res) => {
-  if (req.query.type == 1) {
+  var reqQuery = Object.assign({}, req.query || {}, req.body || {})
+  if (reqQuery.type == 1) {
     getSuperagentData(req, res)
   } else {
     getPuppeteerData(req, res)
