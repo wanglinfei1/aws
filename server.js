@@ -44,7 +44,8 @@ app.use('/*', function(req, res, next) {
         res.header('Access-Control-Allow-Headers', 'Content-Type');
     }
     if (!req.cookies.__UBP__) {
-        res.cookie("__UBP__", 'linfei6', { domain: '.wzytop.cn', path: '/', maxAge: 24 * 60 * 60 * 1000, httpOnly: false })
+        var time = new Date().getTime()
+        res.cookie("__UBP__", 'linfei6__'+time, { domain: '.wzytop.cn', path: '/', maxAge: 24 * 60 * 60 * 1000, httpOnly: false })
     }
     next();
 });

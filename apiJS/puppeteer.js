@@ -98,7 +98,8 @@ var getPuppeteerData = async function (req, res) {
     var resultJSon = { code: 0, data: result, msg: '请求成功' };
     ressend(req, res, resultJSon)
   } catch (err) {
-    var resultJSon = { code: 13, data: {}, msg: '请求失败' };
+    var resultJSon = { code: 13, data: null, msg: '请求失败' };
+    console.log(err)
     ressend(req, res, resultJSon)
   }
 };
