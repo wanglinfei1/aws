@@ -37,13 +37,13 @@ app.use('/*', function(req, res, next) {
     var origin = req.headers.origin;
     var replaceOrigin = origin ? origin.replace(/^((http:|https:)?\/\/)|\/$/g, '') : '';
     if (origin && ((origin.indexOf('wzytop.cn') > -1) || (origin.indexOf('wzytop.xyz') > -1) || (originArr.indexOf(replaceOrigin) > -1))) {
-        res.header("Access-Control-Allow-Origin", origin);
+        res.header('Access-Control-Allow-Origin', origin);
         res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With');
         res.header('Access-Control-Allow-Headers', 'Content-Type');
     }
     if (!req.cookies.__UBP__) {
-        res.cookie("__UBP__", 'linfei6', { domain: '.wzytop.cn', path: '/', maxAge: 24 * 60 * 60 * 1000, httpOnly: false });
+        res.cookie("__UBP__", 'linfei6', { domain: '.wzytop.cn', path: '/', maxAge: 24 * 60 * 60 * 1000, httpOnly: false })
     }
     next();
 });
