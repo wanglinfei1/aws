@@ -3,7 +3,10 @@
  */
 var express = require('express');
 var apiRouter = express.Router();
+var request = require('request');
+var ressend = require('../common/ressend')
 var axios = require('axios');
+
 apiRouter.get('/getList', function (req, res) {
   var url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
   axios.get(url, {
@@ -34,8 +37,8 @@ apiRouter.get('/getPlaylist', function (req, res) {
 });
 apiRouter.get('/getDiscList', function (req, res) {
   var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
-  var query=req.query
-  var refererUrl = "https://y.qq.com/n/yqq/playlist/"+query.disstid+".html"
+  var query = req.query
+  var refererUrl = "https://y.qq.com/n/yqq/playlist/" + query.disstid + ".html"
   axios.get(url, {
     headers: {
       "origin": "http://y.qq.com",
@@ -111,56 +114,67 @@ apiRouter.get('/getTingapi', function (req, res) {
     console.log(error)
   })
 });
-apiRouter.post('/CgiGetVkey', function (req, res) {
+
+var CgiGetVkeyFn = function (req, res) {
+  var reqData = Object.assign({}, req.query || {}, req.body || {})
   var url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
-  console.log(req.body.data)
+  // console.log(reqData.data)
   axios({
-    method:"post",
-    url:url,
+    method: "post",
+    url: url,
     headers: {
-      "authority":" u.y.qq.com",
+      "authority": "u.y.qq.com",
       "origin": "http://y.qq.com",
       "referer": "http://y.qq.com"
     },
-    data:req.body.data
+    data: reqData.data
   }).then(response => {
     res.json(response.data)
   }).catch(error => {
     console.log(error)
   })
+}
+
+apiRouter.post('/CgiGetVkey', function (req, res) {
+  CgiGetVkeyFn(req, res)
 });
 apiRouter.get('/CgiGetVkey', function (req, res) {
-  var url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
-  console.log(req.body.data)
-  axios({
-    method:"post",
-    url:url,
-    headers: {
-      "authority":" u.y.qq.com",
-      "origin": "http://y.qq.com",
-      "referer": "http://y.qq.com"
-    },
-    data:req.query.data
-  }).then(response => {
-    res.json(response.data)
-  }).catch(error => {
-    console.log(error)
-  })
+  CgiGetVkeyFn(req, res)
 });
-apiRouter.get('/getCommonApi', function (req, res) {
-  var url = req.query.url;
-  var header = req.query.header;
-  var urlData = req.query.urlData;
-  if(urlData){
-    url += ('?'+urlData.replace(/\$/g,'&'))
+
+var getCommonApiFn = function (req, res) {
+  var reqData = Object.assign({}, req.query || {}, req.body || {})
+  var url = reqData.url || '';
+  try {
+    url = decodeURIComponent(url) || ''
+  } catch (err) {}
+
+  if (!url) {
+    ressend(req, res, { code: 11, data: '', msg: '缺少其他服务url参数' })
   }
-  axios.get(url, {
-    headers: {
-      "origin": header&&header.origin?header.origin:"https://m.qq.com",
-      "referer": header&&header.referer?header.referer:"https://m.qq.com/"
-    },
-    params: req.query.data
-  }).then(response => {
+
+  var headers = {}, params = {};
+  try {
+    headers = reqData.headers ? JSON.parse(reqData.headers) : {};
+    params = reqData.params ? JSON.parse(reqData.params) : {};
+  } catch (err) {
+    headers = reqData.headers || {};
+    params = reqData.params || {};
+  }
+
+  var method = (req.method || 'get').toLowerCase()
+  var axiosParm = {
+    method: method == 'get' ? 'get' : 'psot',
+    url: url,
+    headers: headers,
+  }
+  if (method == 'get') {
+    axiosParm.params = params
+  } else {
+    axiosParm.data = params
+  }
+
+  axios(axiosParm).then(response => {
     var ret = response.data
     if (typeof ret === 'string') {
       var reg = /^\w+\(({[^()]+})\)$/
@@ -169,10 +183,45 @@ apiRouter.get('/getCommonApi', function (req, res) {
         ret = JSON.parse(matches[1])
       }
     }
-    res.json(ret)
+    ressend(req, res, ret)
   }).catch(error => {
-    console.log('error=============================================================='+error)
+    ressend(req, res, { code: 11, data: '', msg: '请求外部服务错误' })
   })
+}
+
+apiRouter.get('/getOtherHost', function (req, res) {
+  getCommonApiFn(req, res)
 });
+apiRouter.post('/getOtherHost', function (req, res) {
+  getCommonApiFn(req, res)
+});
+
+apiRouter.get('/downloadFile', function (req, res) {
+  var url = req.query.url || '';
+  try {
+    url = decodeURIComponent(url) || ''
+  } catch (err) { }
+  if (!url) {
+    ressend(req, res, { code: 11, data: '', msg: '缺少资源url参数' })
+  }
+
+  var headers = {}, params = {};
+  try {
+    headers = req.query.headers ? JSON.parse(req.query.headers) : {};
+    params = req.query.params ? JSON.parse(req.query.params) : {};
+  } catch (err) {
+    headers = reqData.headers || {};
+    params = reqData.params || {};
+  }
+
+  try {
+    request.get({
+      headers: headers,
+      url: url,
+      query: params
+    }).pipe(res);
+  } catch (err) {}
+});
+
 module.exports = apiRouter;
 

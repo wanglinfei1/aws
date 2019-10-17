@@ -28,6 +28,7 @@ var wechat = require('./wxsign/wechat');
 var oauth = require('./wxsign/oauth');
 var upload = require('./apiJS/upLoad')
 var checkCard = require('./apiJS/checkCard')
+var puppeteer = require('./apiJS/puppeteer')
 
 app.use(bodyParser.urlencoded({ extended: false, "limit": "30000kb" }));
 app.use(bodyParser.json({ "limit": "30000kb" }));
@@ -57,6 +58,7 @@ app.use(wechat);
 app.use(oauth);
 app.use('', upload);
 app.use('', checkCard);
+app.use('', puppeteer);
 
 http.createServer(app).listen(port, function(request, res) {
     console.log('listen: http://localhost:' + port);
