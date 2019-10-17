@@ -38,7 +38,7 @@ var getPuppeteerData = async function (req, res) {
       args: ['--no-sandbox', '--disable-setuid-sandbox'], //不是沙箱模式
       dumpio: false,
       headless: true,
-      devtools: true
+      devtools: false
     };
 
     const browser = await puppeteer.launch(launchConfig);
