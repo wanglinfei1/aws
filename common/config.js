@@ -19,7 +19,8 @@ var dev = {
 var cross_domain = [
     'wlf.sina.com.cn',
     'wlf.sina.com.cn:8080',
-    'sports.sina.com.cn'
+    'sports.sina.com.cn',
+    'lg-duaeoj4c-1255449337.file.myqcloud.com'
 ];
 var codeMsg = {};
 var osconfig = {
@@ -36,7 +37,7 @@ var os_dev_config = {
     Bucket: 'lg-duaeoj4c-1255449337',
     Region: 'ap-shanghai',
     path: '/upload/',
-    osHost: '//ftp.wzytop.xyz'
+    osHost: '//lg-duaeoj4c-1255449337.file.myqcloud.com'
 };
 
 module.exports = {
