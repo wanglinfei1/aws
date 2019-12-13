@@ -7,6 +7,7 @@ var dbHandler = require('./dbhandler');
 var getRandom = function (n, m) {
     return Math.floor(Math.random() * (m - n + 1) + n)
 }
+
 var shuffle = function (arr) {
     var _arr = arr.slice()
     for (var i = 0; i < _arr.length; i++) {
@@ -17,6 +18,7 @@ var shuffle = function (arr) {
     }
     return _arr
 }
+
 var reqcookie = function (req, res) {
     if (!req.cookies.__UBP__) {
         var __uuid__ = UUID().replace(/-/g, '')
@@ -46,6 +48,7 @@ var getDBConfig = function (_db_name, _tabName) {
         })
     })
 }
+
 module.exports = {
     shuffle: shuffle,
     getRandom: getRandom,
