@@ -21,28 +21,10 @@ var cross_domain = [
     'lg-duaeoj4c-1255449337.file.myqcloud.com'
 ];
 var codeMsg = {};
-var osconfig = {
-    SecretId: 'AKIDSijU2L7IuISN3UbeNr67tQ3ScXDejpY2',
-    SecretKey: 'OYT9cqqb8RVLwIPHuIRM2UhkY5MN8dtt',
-    Bucket: 'wlinfei-1255388564',
-    Region: 'ap-chengdu',
-    path: '/upload/',
-    osHost: '//ftp.wzytop.cn'
-};
-var os_dev_config = {
-    SecretId: 'AKIDiEVWHoR6rNefQw9G6g04sQikWaQ2BbZI',
-    SecretKey: 'd2DArIUQ8bolTvBD0Zt36vUnqdARWLuD',
-    Bucket: 'lg-duaeoj4c-1255449337',
-    Region: 'ap-shanghai',
-    path: '/upload/',
-    osHost: '//lg-duaeoj4c-1255449337.file.myqcloud.com'
-};
 
 module.exports = {
     pro: pro,
     dev: dev,
     codeMsg: codeMsg,
-    osconfig: osconfig,
-    os_dev_config: os_dev_config,
     cross_domain: cross_domain
 }

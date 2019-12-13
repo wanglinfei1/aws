@@ -1,30 +1,41 @@
 const COS = require('cos-nodejs-sdk-v5');
 var express = require('express');
 var router = express.Router();
-const request = require('request');
 const formidable = require("formidable");
-var config = require('../common/config.js');
 const fs = require('fs');
-config = process.env.NODE_ENV == 'dev' ? config.os_dev_config : config.osconfig;
-const cos = new COS({
-    SecretId: config.SecretId,
-    SecretKey: config.SecretKey,
-});
+var nooe_env = process.env.NODE_ENV == 'dev' ? 'dev' : 'pro';
+var UTIL = require('../common/util')
+var OSCONFIG = {}
+var cos = null
+
+UTIL.getDBConfig('DATA', 'osconfig').then((data) => {
+    var config = data[0] || {}
+    OSCONFIG = config[nooe_env] || {}
+    console.log('OS_CONFIG======' + OSCONFIG.Bucket, OSCONFIG)
+})
+
+
 const checkFile = (key, cb) => {
+    if (!cos) {
+        return
+    }
     cos.headObject({
-        Bucket: config.Bucket,
-        Region: config.Region,
+        Bucket: OSCONFIG.Bucket,
+        Region: OSCONFIG.Region,
         Key: key //查询key
     }, cb);
 };
 const osPut = (files, query, key, res, buffer, resArr) => {
+    if (!cos) {
+        return
+    }
     cos.putObject({
-        Bucket: config.Bucket,
-        Region: config.Region,
+        Bucket: OSCONFIG.Bucket,
+        Region: OSCONFIG.Region,
         Key: key,
         'ContentLength': files.size,
         Body: buffer,
-    }, function(err, data) {
+    }, function (err, data) {
         fs.unlink(files.path)
         if (err) {
             if (resArr.length < query.lg - 1) {
@@ -35,7 +46,7 @@ const osPut = (files, query, key, res, buffer, resArr) => {
             }
         } else {
             if (data.statusCode === 200) {
-                data.url = config.osHost + key;
+                data.url = OSCONFIG.osHost + key;
                 if (resArr.length < query.lg - 1) {
                     resArr.push(data)
                 } else {
@@ -53,8 +64,15 @@ const osPut = (files, query, key, res, buffer, resArr) => {
         }
     })
 }
-var upLoad = function(files, query, res, buffer, resArr) {
-    var path = query.path || config.path;
+var upLoad = function (files, query, res, buffer, resArr) {
+    if (!cos) {
+        console.log('=======创建云存储OS对象========')
+        cos = new COS({
+            SecretId: OSCONFIG.SecretId,
+            SecretKey: OSCONFIG.SecretKey,
+        });
+    }
+    var path = query.path || OSCONFIG.path;
     if ((path.indexOf('http://') > -1 || path.indexOf('https://') > -1)) {
         path = path.replace(/http[s]?:\/\/ftp\.wzytop\.cn/g, '') || '/'
     }
@@ -63,7 +81,7 @@ var upLoad = function(files, query, res, buffer, resArr) {
     if (replace && replace == 'true') {
         osPut(files, query, key, res, buffer, resArr)
     } else {
-        checkFile(key, function(err, data) {
+        checkFile(key, function (err, data) {
             if (err) {
                 if (err.statusCode == 404) {
                     osPut(files, query, key, res, buffer, resArr)
@@ -79,7 +97,7 @@ var upLoad = function(files, query, res, buffer, resArr) {
             } else {
                 if (data.statusCode == 200) {
                     data.msg = '文件已存在'
-                    data.url = config.osHost + key;
+                    data.url = OSCONFIG.osHost + key;
                     fs.unlink(files.path)
                     if (resArr.length < query.lg - 1) {
                         resArr.push(data)
@@ -94,14 +112,14 @@ var upLoad = function(files, query, res, buffer, resArr) {
         })
     }
 };
-router.post('/upload', function(req, res) {
+router.post('/upload', function (req, res) {
     var form = new formidable.IncomingForm();
     form.uploadDir = "./dir";
     form.keepExtensions = true;
     var resArr = [];
     var filesArr = [];
     var query = req.query;
-    form.parse(req, function(err, fields, files) {
+    form.parse(req, function (err, fields, files) {
         if (!query['lg']) {
             for (var k in files) {
                 if (files[k]) {
