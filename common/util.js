@@ -2,6 +2,7 @@
  * Created by linfei6 on 2018/4/20.
  */
 var UUID = require('./uuid-v4');
+var dbHandler = require('./dbhandler');
 
 var getRandom = function (n, m) {
     return Math.floor(Math.random() * (m - n + 1) + n)
@@ -31,8 +32,23 @@ var reqcookie = function (req, res) {
         }
     }
 }
+
+var getDBConfig = function (_db_name, _tabName) {
+    return new Promise((resolve, reject) => {
+        dbHandler('find', _tabName, {}, _db_name).then((data) => {
+            if (data.length) {
+                resolve(data)
+            } else {
+                reject()
+            }
+        }).catch(() => {
+            reject()
+        })
+    })
+}
 module.exports = {
     shuffle: shuffle,
     getRandom: getRandom,
-    reqcookie: reqcookie
+    reqcookie: reqcookie,
+    getDBConfig: getDBConfig
 };

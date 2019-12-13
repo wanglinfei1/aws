@@ -6,15 +6,13 @@ var pro = {
     host: '118.24.172.195',
     port: 27027,
     username: 'root',
-    password: 'wang%401206',
-    dbName: 'test',
+    password: 'wang%401206'
 };
 var dev = {
     host: 'localhost',
     port: 27017,
     username: 'admin',
-    password: '123456',
-    dbName: 'test',
+    password: '123456'
 };
 var cross_domain = [
     'wlf.sina.com.cn',
