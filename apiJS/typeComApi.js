@@ -1,10 +1,10 @@
 /**
  * Created by wanglinfei on 2017/9/25.
  */
-var dbHandler = require('./../common/dbhandler');
 var express = require('express');
 var router = express.Router();
-var UUID = require('./../common/uuid-v4');
+var dbHandler = require('../common/dbhandler');
+var UUID = require('../common/uuid-v4');
 var DBNAME = 'OTHER'
 
 router.get('/typeComApi/get/:id', (req, res) => {

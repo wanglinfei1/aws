@@ -3,8 +3,6 @@
  */
 var express = require('express');
 var apiRouter = express.Router();
-var request = require('request');
-var ressend = require('../common/ressend')
 var axios = require('axios');
 
 apiRouter.get('/getList', function (req, res) {
@@ -140,87 +138,6 @@ apiRouter.post('/CgiGetVkey', function (req, res) {
 });
 apiRouter.get('/CgiGetVkey', function (req, res) {
   CgiGetVkeyFn(req, res)
-});
-
-var getCommonApiFn = function (req, res) {
-  var reqData = Object.assign({}, req.query || {}, req.body || {})
-  var url = reqData.url || '';
-  try {
-    url = decodeURIComponent(url) || ''
-  } catch (err) {}
-
-  if (!url) {
-    ressend(req, res, { code: 11, data: '', msg: '缺少其他服务url参数' })
-  }
-
-  var headers = {}, params = {};
-  try {
-    headers = reqData.headers ? JSON.parse(reqData.headers) : {};
-    params = reqData.params ? JSON.parse(reqData.params) : {};
-  } catch (err) {
-    headers = reqData.headers || {};
-    params = reqData.params || {};
-  }
-
-  var method = (req.method || 'get').toLowerCase()
-  var axiosParm = {
-    method: method == 'get' ? 'get' : 'psot',
-    url: url,
-    headers: headers,
-  }
-  if (method == 'get') {
-    axiosParm.params = params
-  } else {
-    axiosParm.data = params
-  }
-
-  axios(axiosParm).then(response => {
-    var ret = response.data
-    if (typeof ret === 'string') {
-      var reg = /^\w+\(({[^()]+})\)$/
-      var matches = ret.match(reg)
-      if (matches) {
-        ret = JSON.parse(matches[1])
-      }
-    }
-    ressend(req, res, ret)
-  }).catch(error => {
-    ressend(req, res, { code: 11, data: '', msg: '请求外部服务错误' })
-  })
-}
-
-apiRouter.get('/getOtherHost', function (req, res) {
-  getCommonApiFn(req, res)
-});
-apiRouter.post('/getOtherHost', function (req, res) {
-  getCommonApiFn(req, res)
-});
-
-apiRouter.get('/downloadFile', function (req, res) {
-  var url = req.query.url || '';
-  try {
-    url = decodeURIComponent(url) || ''
-  } catch (err) { }
-  if (!url) {
-    ressend(req, res, { code: 11, data: '', msg: '缺少资源url参数' })
-  }
-
-  var headers = {}, params = {};
-  try {
-    headers = req.query.headers ? JSON.parse(req.query.headers) : {};
-    params = req.query.params ? JSON.parse(req.query.params) : {};
-  } catch (err) {
-    headers = reqData.headers || {};
-    params = reqData.params || {};
-  }
-
-  try {
-    request.get({
-      headers: headers,
-      url: url,
-      query: params
-    }).pipe(res);
-  } catch (err) {}
 });
 
 module.exports = apiRouter;
