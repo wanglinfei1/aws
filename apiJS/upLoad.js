@@ -65,13 +65,6 @@ const osPut = (files, query, key, res, buffer, resArr) => {
     })
 }
 var upLoad = function (files, query, res, buffer, resArr) {
-    if (!cos) {
-        console.log('=======创建云存储OS对象========')
-        cos = new COS({
-            SecretId: OSCONFIG.SecretId,
-            SecretKey: OSCONFIG.SecretKey,
-        });
-    }
     var path = query.path || OSCONFIG.path;
     if ((path.indexOf('http://') > -1 || path.indexOf('https://') > -1)) {
         path = path.replace(/http[s]?:\/\/ftp\.wzytop\.cn/g, '') || '/'
@@ -113,6 +106,13 @@ var upLoad = function (files, query, res, buffer, resArr) {
     }
 };
 router.post('/upload', function (req, res) {
+    if (!cos && OSCONFIG.SecretId && OSCONFIG.SecretKey) {
+        console.log('=======创建云存储OS对象========')
+        cos = new COS({
+            SecretId: OSCONFIG.SecretId,
+            SecretKey: OSCONFIG.SecretKey,
+        });
+    }
     var form = new formidable.IncomingForm();
     form.uploadDir = "./dir";
     form.keepExtensions = true;

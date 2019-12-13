@@ -71,7 +71,6 @@ router.get('/mini/getLoginInfo', function (req, res) {
   }
 });
 
-
 router.post('/mini/setuserinfo', function (req, res) {
   try {
     var reqBody = Object.assign(req.query || {}, req.body || {})
