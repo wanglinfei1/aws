@@ -58,12 +58,20 @@ var find = function(db, collection, selector) {
     });
   })
 };
+//总数查询
+var count = function(db, collection, selector) {
+  return new Promise((resolve, reject) => {
+    collection.find(selector).count().then((num) => {
+      resolve(num)
+    })
+  })
+};
 //find分页
 var findList = function(db, collection, selector) {
   return new Promise((resolve, reject) => {
-    var count = ''
-    collection.find(selector[0]).count().then((num) => {
-      count = num
+    var __count = ''
+    count(db, collection, selector[0]).then((num) => {
+      __count = num
     })
     collection.find(selector[0]).skip(selector[1]).limit(selector[2]).sort(selector[3]).toArray(function(err, docs) {
       try { assert.equal(err, null); } catch (e) {
@@ -71,7 +79,7 @@ var findList = function(db, collection, selector) {
         console.log(e);
         docs = [];
       }
-      count && (docs.count = count)
+      __count && (docs.count = __count)
       resolve(docs);
       db.close();
     });
@@ -116,6 +124,7 @@ var getNumId = function(db, collection, queryInfo) {
 };
 //方法都赋值到操作对象上，便于调用
 var methodType = {
+  count: count,
   add: add,
   update: updates,
   delete: deletes,

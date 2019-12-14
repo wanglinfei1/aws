@@ -5,6 +5,9 @@ var request = require('request');
 var axios = require('axios');
 var ressend = require('../common/ressend');
 var dbHandler = require('../common/dbhandler');
+var aseCode = require('../common/aseCode')
+var UTIL = require('../common/util')
+var UUID = require('../common/uuid-v4');
 
 router.get('/cossing', (req, res) => {
   var reqQuery = req.query || {}
@@ -107,6 +110,18 @@ router.get('/downloadFile', function(req, res) {
   } catch (err) {}
 });
 
+let CONFIG = {}
+UTIL.getDBConfig('MINI', 'config').then((data) => {
+  CONFIG = data[0] || {}
+})
+
+var getLoginInfo = function(utoken, k) {
+  k = k || 'openid'
+  var password = CONFIG.password || ''
+  var info = JSON.parse(aseCode.aseDecode(utoken, password)) || {}
+  return info[k] || ''
+};
+
 const COMMONQUERYDB = function(req, res) {
   try {
     var reqData = Object.assign({}, req.query || {}, req.body || {})
@@ -124,6 +139,18 @@ const COMMONQUERYDB = function(req, res) {
     if (q_v) {
       var q_v_arr = q_v.split(',')
       query[q_k] = new RegExp('^(' + q_v_arr.join('|') + ')$', 'g')
+    }
+    var reqQuery = reqData.query
+    if (reqQuery) {
+      try {
+        reqQuery = JSON.parse(reqQuery)
+      } catch (err) {}
+      if (_db_name == 'MINI' && reqQuery.utoken) {
+        var openid = getLoginInfo(reqQuery.utoken)
+        reqQuery['openid'] = openid
+        delete reqQuery['utoken']
+      }
+      query = Object.assign(query, reqQuery)
     }
     // 排序对象 -1倒叙 1正序
     var json = {};
@@ -160,4 +187,77 @@ router.post('/CQ/**', function(req, res) {
   COMMONQUERYDB(req, res)
 });
 
+
+// 添加更新保存
+router.post('/CA/**', (req, res) => {
+  var reqData = Object.assign({}, req.query || {}, req.body || {})
+  var mongoArr = req.path.replace(/\/?CA\/?/, '').split('/')
+  var _db_name = reqData.db_name || mongoArr[0] || ''
+  var _tabName = reqData.tabName || mongoArr[1] || ''
+  if (!_db_name || !_tabName) {
+    res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
+    return
+  }
+  var __query = {}
+  if (reqData.query) {
+    __query = reqData.query
+    try {
+      __query = JSON.parse(__query)
+    } catch (err) {}
+    if (_db_name == 'MINI' && __query.utoken) {
+      var openid = getLoginInfo(__query.utoken)
+      __query['openid'] = openid
+      reqData['openid'] = openid
+      delete __query['utoken']
+    }
+  }
+  delete reqData['query']
+
+  function addData() {
+    reqData.id = UUID();
+    reqData.time = new Date().getTime();
+    dbHandler('add', _tabName, reqData, _db_name).then((data) => {
+      res.send({ code: 0, data: data, msg: '添加成功' })
+    })
+  }
+
+  function upData() {
+    reqData.time = new Date().getTime();
+    dbHandler('update', _tabName, [__query, { $set: reqData }], _db_name).then((data) => {
+      res.send({ code: 0, data: data.result || {}, msg: '更新成功' })
+    });
+  }
+
+  dbHandler('find', _tabName, __query, _db_name).then((data) => {
+    if (data.length) {
+      upData(data)
+    } else {
+      addData();
+    }
+  });
+});
+
+//删除
+router.post('/CD/**', (req, res) => {
+  var reqData = Object.assign({}, req.query || {}, req.body || {})
+  var mongoArr = req.path.replace(/\/?CD\/?/, '').split('/')
+  var _db_name = reqData.db_name || mongoArr[0] || ''
+  var _tabName = reqData.tabName || mongoArr[1] || ''
+  if (!_db_name || !_tabName) {
+    res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
+    return
+  }
+  if (_db_name == 'MINI' && reqData.utoken) {
+    var openid = getLoginInfo(reqData.utoken)
+    if (openid == reqData.openid) {
+      delete reqData['utoken']
+    } else {
+      res.send({ code: 11, data: null, msg: '校验不通过' })
+      return
+    }
+  }
+  dbHandler('delete', _tabName, reqData, _db_name).then(data => {
+    res.send({ code: 0, data: data.result || {}, msg: '删除成功' })
+  });
+});
 module.exports = router;

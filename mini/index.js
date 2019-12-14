@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
-var aseCode = require('./aseCode')
+var aseCode = require('../common/aseCode')
 var WXBizDataCrypt = require('./WXBizDataCrypt')
 var dbHandler = require('./../common/dbhandler');
 var UUID = require('./../common/uuid-v4');
@@ -9,7 +9,6 @@ var tabName = 'user';
 var UTIL = require('../common/util')
 var config = {}
 var db_name = 'MINI'
-var password = '';
 
 UTIL.getDBConfig(db_name, 'config').then((data) => {
   config = data[0] || {}
@@ -57,7 +56,12 @@ router.get('/mini/getLoginInfo', function(req, res) {
     console.log(openid)
     dbHandler('find', _tabName, { openId: openid }, _db_name).then((data) => {
       if (data.length) {
-        res.send({ code: 0, data: data[0], msg: '查询信息成功' })
+        dbHandler('count', 'like', { openid: openid }, _db_name).then((num) => {
+          data[0].reply = num || 0
+          res.send({ code: 0, data: data[0], msg: '查询信息成功' })
+        }).catch(() => {
+          res.send({ code: 0, data: data[0], msg: '查询信息成功' })
+        })
       } else {
         res.send({ code: 0, data: null, msg: '你的信息不存在' })
       }
@@ -100,7 +104,6 @@ router.post('/mini/setuserinfo', function(req, res) {
     }
 
     function updata() {
-      newAccount.reply = '12'
       dbHandler('update', tabName, [{ openId: openid }, { $set: newAccount }], db_name).then((data) => {
         res.send({ code: 0, data: newAccount, msg: '信息更新成功' })
       });
