@@ -47,6 +47,7 @@ router.get('/typeComApi/create', (req, res) => {
     res.send({ code: -1, data: 'tabName必填', msg: '请求成功' });
     return;
   }
+
   function savStock() {
     reqData.id = UUID();
     reqData.time = new Date();
@@ -54,6 +55,7 @@ router.get('/typeComApi/create', (req, res) => {
       res.send({ code: 0, data: data, msg: '添加成功' })
     })
   }
+
   function updata() {
     reqData.time = new Date();
     dbHandler('update', tabName, [{ id: reqData.id }, { $set: reqData }], dbName).then((data) => {
@@ -90,7 +92,9 @@ router.get('/typeComApi/list', (req, res) => {
     json['time'] = parseInt(sort);
   }
   dbHandler('findList', tabName, [queryList, skip, limit, json], dbName).then(data => {
-    res.send({ code: 0, data: data, msg: '请求成功', total: data.length })
+    var count = data.count || data.length || 0
+    delete data['count']
+    res.send({ code: 0, data: data, msg: '请求成功', total: count })
   })
 });
 

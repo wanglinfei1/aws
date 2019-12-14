@@ -61,12 +61,17 @@ var find = function(db, collection, selector) {
 //find分页
 var findList = function(db, collection, selector) {
   return new Promise((resolve, reject) => {
+    var count = ''
+    collection.find(selector[0]).count().then((num) => {
+      count = num
+    })
     collection.find(selector[0]).skip(selector[1]).limit(selector[2]).sort(selector[3]).toArray(function(err, docs) {
       try { assert.equal(err, null); } catch (e) {
         reject(e);
         console.log(e);
         docs = [];
       }
+      count && (docs.count = count)
       resolve(docs);
       db.close();
     });
