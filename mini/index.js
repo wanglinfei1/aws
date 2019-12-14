@@ -53,6 +53,7 @@ router.get('/mini/getLoginInfo', function (req, res) {
     var openid = req.query.openid || getLoginInfo(utoken)
     var _tabName = req.query.tabName || tabName
     var _db_name = req.query.db_name || db_name
+    console.log(openid)
     dbHandler('find', _tabName, { openId: openid }, _db_name).then((data) => {
       if (data.length) {
         res.send({ code: 0, data: data[0], msg: '查询信息成功' })
@@ -66,7 +67,7 @@ router.get('/mini/getLoginInfo', function (req, res) {
     res.json({
       code: 11,
       data: err,
-      msg: '获取信息错误'
+      msg: '获取错误'
     })
   }
 });
