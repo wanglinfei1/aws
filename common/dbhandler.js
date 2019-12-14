@@ -124,7 +124,7 @@ module.exports = function(action, collections, selector, db_name) {
   var __dbName = (db_name || 'OTHER')
   var __Urls = Urls + '/' + __dbName;
   return new Promise((resolve, reject) => {
-    MongoClient.connect(Urls, function(err, db) {
+    MongoClient.connect(Urls, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, db) {
       try {
         assert.equal(null, err);
       } catch (err) { console.log(err) }

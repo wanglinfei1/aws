@@ -13,17 +13,17 @@ var password = '';
 
 UTIL.getDBConfig(db_name, 'config').then((data) => {
   config = data[0] || {}
-  password = config.password;
   console.log('MINI_CONFIG======', config)
 })
 
-var getLoginInfo = function (utoken, key) {
-  key = key || 'openid'
+var getLoginInfo = function(utoken, k) {
+  k = k || 'openid'
+  var password = config.password || ''
   var info = JSON.parse(aseCode.aseDecode(utoken, password)) || {}
-  return info[key] || ''
+  return info[k] || ''
 }
 
-router.get('/mini/login', function (req, res) {
+router.get('/mini/login', function(req, res) {
   var url = 'https://api.weixin.qq.com/sns/jscode2session'
   const JSCODE = req.query.code || ''
   axios.get(url, {
@@ -35,6 +35,7 @@ router.get('/mini/login', function (req, res) {
     }
   }).then(response => {
     var reqData = response.data || {}
+    var password = config.password || ''
     var str = aseCode.aseEncode(JSON.stringify(reqData), password) || ''
     res.json({
       code: 0,
@@ -47,7 +48,7 @@ router.get('/mini/login', function (req, res) {
   })
 });
 
-router.get('/mini/getLoginInfo', function (req, res) {
+router.get('/mini/getLoginInfo', function(req, res) {
   try {
     var utoken = req.query.utoken || ''
     var openid = req.query.openid || getLoginInfo(utoken)
@@ -72,7 +73,7 @@ router.get('/mini/getLoginInfo', function (req, res) {
   }
 });
 
-router.post('/mini/setuserinfo', function (req, res) {
+router.post('/mini/setuserinfo', function(req, res) {
   try {
     var reqBody = Object.assign(req.query || {}, req.body || {})
     var utoken = reqBody.utoken || ''
@@ -97,6 +98,7 @@ router.post('/mini/setuserinfo', function (req, res) {
         res.send({ code: 0, data: data, msg: '信息注册成功' })
       })
     }
+
     function updata() {
       newAccount.reply = '12'
       dbHandler('update', tabName, [{ openId: openid }, { $set: newAccount }], db_name).then((data) => {
@@ -120,4 +122,3 @@ router.post('/mini/setuserinfo', function (req, res) {
 });
 
 module.exports = router;
-
