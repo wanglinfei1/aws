@@ -5,7 +5,7 @@ var request = require('request');
 var axios = require('axios');
 var ressend = require('../common/ressend');
 var dbHandler = require('../common/dbhandler');
-var aseCode = require('../common/aseCode')
+var aseCode = require('../common/crypto-sing')
 var UTIL = require('../common/util')
 var UUID = require('../common/uuid-v4');
 
@@ -110,15 +110,9 @@ router.get('/downloadFile', function(req, res) {
   } catch (err) {}
 });
 
-let CONFIG = {}
-UTIL.getDBConfig('MINI', 'config').then((data) => {
-  CONFIG = data[0] || {}
-})
-
 var getLoginInfo = function(utoken, k) {
   k = k || 'openid'
-  var password = CONFIG.password || ''
-  var info = JSON.parse(aseCode.aseDecode(utoken, password)) || {}
+  var info = JSON.parse(aseCode.aseDecode(utoken)) || {}
   return info[k] || ''
 };
 
@@ -247,10 +241,15 @@ router.post('/CD/**', (req, res) => {
     res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
     return
   }
-  if (_db_name == 'MINI' && reqData.utoken) {
-    var openid = getLoginInfo(reqData.utoken)
-    if (openid == reqData.openid) {
-      delete reqData['utoken']
+  if (_db_name == 'MINI') {
+    if (reqData.utoken) {
+      var openid = getLoginInfo(reqData.utoken)
+      if (openid == reqData.openid) {
+        delete reqData['utoken']
+      } else {
+        res.send({ code: 11, data: null, msg: '校验不通过' })
+        return
+      }
     } else {
       res.send({ code: 11, data: null, msg: '校验不通过' })
       return

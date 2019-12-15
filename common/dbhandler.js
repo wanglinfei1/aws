@@ -144,7 +144,7 @@ module.exports = function(action, collections, selector, db_name) {
       } catch (err) { console.log(err) }
       if (db) {
         var collection = db.db(__dbName).collection(collections);
-        console.log("Connected success====" + __Urls);
+        console.log("Connected success====" + __Urls + '/' + collections);
         methodType[action](db, collection, selector).then(res => {
           resolve(res)
         }).catch(err => {

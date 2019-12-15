@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
-var aseCode = require('../common/aseCode')
+var aseCode = require('../common/crypto-sing')
 var WXBizDataCrypt = require('./WXBizDataCrypt')
 var dbHandler = require('./../common/dbhandler');
 var UUID = require('./../common/uuid-v4');
@@ -17,8 +17,7 @@ UTIL.getDBConfig(db_name, 'config').then((data) => {
 
 var getLoginInfo = function(utoken, k) {
   k = k || 'openid'
-  var password = config.password || ''
-  var info = JSON.parse(aseCode.aseDecode(utoken, password)) || {}
+  var info = JSON.parse(aseCode.aseDecode(utoken)) || {}
   return info[k] || ''
 }
 
@@ -34,8 +33,7 @@ router.get('/mini/login', function(req, res) {
     }
   }).then(response => {
     var reqData = response.data || {}
-    var password = config.password || ''
-    var str = aseCode.aseEncode(JSON.stringify(reqData), password) || ''
+    var str = aseCode.aseEncode(JSON.stringify(reqData)) || ''
     res.json({
       code: 0,
       data: {
