@@ -139,11 +139,6 @@ const COMMONQUERYDB = function(req, res) {
       try {
         reqQuery = JSON.parse(reqQuery)
       } catch (err) {}
-      if (_db_name == 'MINI' && reqQuery.utoken) {
-        var openid = getLoginInfo(reqQuery.utoken)
-        reqQuery['openid'] = openid
-        delete reqQuery['utoken']
-      }
       query = Object.assign(query, reqQuery)
     }
     // 排序对象 -1倒叙 1正序
@@ -192,18 +187,12 @@ router.post('/CA/**', (req, res) => {
     res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
     return
   }
-  var __query = {}
+  var __query = null
   if (reqData.query) {
-    __query = reqData.query
+    __query = reqData.query || {}
     try {
       __query = JSON.parse(__query)
     } catch (err) {}
-    if (_db_name == 'MINI' && __query.utoken) {
-      var openid = getLoginInfo(__query.utoken)
-      __query['openid'] = openid
-      reqData['openid'] = openid
-      delete __query['utoken']
-    }
   }
   delete reqData['query']
 
@@ -221,14 +210,17 @@ router.post('/CA/**', (req, res) => {
       res.send({ code: 0, data: data.result || {}, msg: '更新成功' })
     });
   }
-
-  dbHandler('find', _tabName, __query, _db_name).then((data) => {
-    if (data.length) {
-      upData(data)
-    } else {
-      addData();
-    }
-  });
+  if (__query) {
+    dbHandler('find', _tabName, __query, _db_name).then((data) => {
+      if (data.length) {
+        upData(data)
+      } else {
+        addData();
+      }
+    });
+  } else {
+    addData();
+  }
 });
 
 //删除
@@ -240,20 +232,6 @@ router.post('/CD/**', (req, res) => {
   if (!_db_name || !_tabName) {
     res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
     return
-  }
-  if (_db_name == 'MINI') {
-    if (reqData.utoken) {
-      var openid = getLoginInfo(reqData.utoken)
-      if (openid == reqData.openid) {
-        delete reqData['utoken']
-      } else {
-        res.send({ code: 11, data: null, msg: '校验不通过' })
-        return
-      }
-    } else {
-      res.send({ code: 11, data: null, msg: '校验不通过' })
-      return
-    }
   }
   dbHandler('delete', _tabName, reqData, _db_name).then(data => {
     res.send({ code: 0, data: data.result || {}, msg: '删除成功' })
