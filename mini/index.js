@@ -54,7 +54,7 @@ router.get('/mini/getLoginInfo', function(req, res) {
     console.log(openid)
     dbHandler('find', _tabName, { openId: openid }, _db_name).then((data) => {
       if (data.length) {
-        dbHandler('count', 'like', { openid: openid }, _db_name).then((num) => {
+        dbHandler('count', 'like', { openid: openid, isdel: '0' }, _db_name).then((num) => {
           data[0].reply = num || 0
           res.send({ code: 0, data: data[0], msg: '查询信息成功' })
         }).catch(() => {

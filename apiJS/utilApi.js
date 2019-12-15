@@ -197,15 +197,22 @@ router.post('/CA/**', (req, res) => {
   delete reqData['query']
 
   function addData() {
-    reqData.id = UUID();
-    reqData.time = new Date().getTime();
+    var _data = {
+      id: UUID().replace(/-/g, ''),
+      time: parseInt(new Date().getTime() / 1000),
+      isdel: '0'
+    }
+    reqData = Object.assign(_data, reqData, {})
     dbHandler('add', _tabName, reqData, _db_name).then((data) => {
       res.send({ code: 0, data: data, msg: '添加成功' })
     })
   }
 
   function upData() {
-    reqData.time = new Date().getTime();
+    var _data = {
+      time: parseInt(new Date().getTime() / 1000)
+    }
+    reqData = Object.assign(reqData, _data)
     dbHandler('update', _tabName, [__query, { $set: reqData }], _db_name).then((data) => {
       res.send({ code: 0, data: data.result || {}, msg: '更新成功' })
     });
@@ -223,18 +230,39 @@ router.post('/CA/**', (req, res) => {
   }
 });
 
-//删除
-router.post('/CD/**', (req, res) => {
-  var reqData = Object.assign({}, req.query || {}, req.body || {})
-  var mongoArr = req.path.replace(/\/?CD\/?/, '').split('/')
-  var _db_name = reqData.db_name || mongoArr[0] || ''
-  var _tabName = reqData.tabName || mongoArr[1] || ''
-  if (!_db_name || !_tabName) {
-    res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
-    return
+var COMMONDELDB = function(req, res) {
+    var reqData = Object.assign({}, req.query || {}, req.body || {})
+    var mongoArr = req.path.replace(/\/?CD\/?/, '').split('/')
+    var _db_name = reqData.db_name || mongoArr[0] || ''
+    var _tabName = reqData.tabName || mongoArr[1] || ''
+    if (!_db_name || !_tabName) {
+      res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
+      return
+    }
+    var __query = {}
+    var q_k = reqData.q_k || 'id'
+    var q_v = reqData.q_v || ''
+    if (q_v) {
+      var q_v_arr = q_v.split(',')
+      __query[q_k] = new RegExp('^(' + q_v_arr.join('|') + ')$', 'g')
+    }
+
+    var reqQuery = reqData.query
+    if (reqQuery) {
+      try {
+        reqQuery = JSON.parse(reqQuery)
+      } catch (err) {}
+      __query = Object.assign(__query, reqQuery)
+    }
+    dbHandler('updateMany', _tabName, [__query, { $set: { isdel: '1' } }], _db_name).then(data => {
+      res.send({ code: 0, data: data.result || {}, msg: '删除成功' })
+    });
   }
-  dbHandler('delete', _tabName, reqData, _db_name).then(data => {
-    res.send({ code: 0, data: data.result || {}, msg: '删除成功' })
-  });
+  //删除
+router.post('/CD/**', (req, res) => {
+  COMMONDELDB(req, res)
+});
+router.get('/CD/**', (req, res) => {
+  COMMONDELDB(req, res)
 });
 module.exports = router;

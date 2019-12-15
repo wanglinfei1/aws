@@ -98,6 +98,18 @@ var updates = function(db, collection, selector) {
     });
   })
 };
+var updateMany = function(db, collection, selector) {
+  return new Promise((reslove, reject) => {
+    collection.updateMany(selector[0], selector[1], { upsert: false }, function(err, result) {
+      try { assert.equal(err, null) } catch (e) {
+        reject(e);
+      }
+      assert.equal(1, result.result.n);
+      reslove(result);
+      db.close();
+    });
+  })
+};
 var getNumId = function(db, collection, queryInfo) {
   return new Promise((resolve, reject) => {
     collection.findAndModify({ 'name': 'NumId' }, [], {
@@ -127,6 +139,7 @@ var methodType = {
   count: count,
   add: add,
   update: updates,
+  updateMany: updateMany,
   delete: deletes,
   find: find,
   getNumId: getNumId,
