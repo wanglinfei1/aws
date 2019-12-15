@@ -100,11 +100,11 @@ var updates = function(db, collection, selector) {
 };
 var updateMany = function(db, collection, selector) {
   return new Promise((reslove, reject) => {
-    collection.updateMany(selector[0], selector[1], { upsert: false }, function(err, result) {
+    collection.updateMany(selector[0], selector[1], { upsert: false, multi: true }, function(err, result) {
       try { assert.equal(err, null) } catch (e) {
         reject(e);
       }
-      assert.equal(1, result.result.n);
+      assert.equal(1, result.result.ok);
       reslove(result);
       db.close();
     });
