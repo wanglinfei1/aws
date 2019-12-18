@@ -116,31 +116,50 @@ var getLoginInfo = function(utoken, k) {
     return info[k] || ''
 };
 
+var getReDataAndName = function(req, res) {
+    // 获取参数
+    var reqData = Object.assign({}, req.query || {}, req.body || {})
+    var mongoArr = req.path.split('/')
+    var db_name = reqData.db_name || mongoArr[2] || ''
+    var tabName = reqData.tabName || mongoArr[3] || ''
+    if (!db_name || !tabName) {
+        res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
+        return
+    }
+    // 查询对象
+    var query = null;
+    var q_k = reqData.q_k || 'id'
+    var q_v = reqData.q_v || ''
+    if (q_v) {
+        query = query || {}
+        var q_v_arr = q_v.split(',')
+        query[q_k] = new RegExp('^(' + q_v_arr.join('|') + ')$', 'g')
+    }
+    var reqQuery = reqData.query
+    if (reqQuery) {
+        try {
+            reqQuery = JSON.parse(reqQuery)
+        } catch (err) {}
+        query = Object.assign(query || {}, reqQuery)
+    }
+    delete reqData['query']
+    return {
+        reqData: reqData,
+        db_name: db_name,
+        tabName: tabName,
+        query: query
+    }
+}
+
 const COMMONQUERYDB = function(req, res) {
     try {
-        var reqData = Object.assign({}, req.query || {}, req.body || {})
-        var mongoArr = req.path.replace(/\/?CQ\/?/, '').split('/')
-        var _db_name = reqData.db_name || mongoArr[0] || ''
-        var _tabName = reqData.tabName || mongoArr[1] || ''
-        if (!_db_name || !_tabName) {
-            res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
-            return
-        }
+        // 获取参数
+        var ReDataAndName = getReDataAndName(req, res) || {};
+        var reqData = ReDataAndName.reqData;
+        var _db_name = ReDataAndName.db_name;
+        var _tabName = ReDataAndName.tabName;
         // 查询对象
-        var query = {};
-        var q_k = reqData.q_k || 'id'
-        var q_v = reqData.q_v || ''
-        if (q_v) {
-            var q_v_arr = q_v.split(',')
-            query[q_k] = new RegExp('^(' + q_v_arr.join('|') + ')$', 'g')
-        }
-        var reqQuery = reqData.query
-        if (reqQuery) {
-            try {
-                reqQuery = JSON.parse(reqQuery)
-            } catch (err) {}
-            query = Object.assign(query, reqQuery)
-        }
+        var query = ReDataAndName.query || {};
         // 排序对象 -1倒叙 1正序
         var json = {};
         var s_k = reqData.s_k || 'time';
@@ -179,22 +198,13 @@ router.post('/CQ/**', function(req, res) {
 
 // 添加更新保存
 router.post('/CA/**', (req, res) => {
-    var reqData = Object.assign({}, req.query || {}, req.body || {})
-    var mongoArr = req.path.replace(/\/?CA\/?/, '').split('/')
-    var _db_name = reqData.db_name || mongoArr[0] || ''
-    var _tabName = reqData.tabName || mongoArr[1] || ''
-    if (!_db_name || !_tabName) {
-        res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
-        return
-    }
-    var __query = null
-    if (reqData.query) {
-        __query = reqData.query || {}
-        try {
-            __query = JSON.parse(__query)
-        } catch (err) {}
-    }
-    delete reqData['query']
+    // 获取参数
+    var ReDataAndName = getReDataAndName(req, res) || {};
+    var reqData = ReDataAndName.reqData;
+    var _db_name = ReDataAndName.db_name;
+    var _tabName = ReDataAndName.tabName;
+    // 查询对象
+    var __query = ReDataAndName.query || null;
 
     function addData() {
         var _data = {
@@ -231,38 +241,26 @@ router.post('/CA/**', (req, res) => {
 });
 
 var COMMONDELDB = function(req, res) {
-    var reqData = Object.assign({}, req.query || {}, req.body || {})
-    var mongoArr = req.path.replace(/\/?CD\/?/, '').split('/')
-    var _db_name = reqData.db_name || mongoArr[0] || ''
-    var _tabName = reqData.tabName || mongoArr[1] || ''
-    if (!_db_name || !_tabName) {
-        res.send({ code: 11, data: null, msg: '数据库表名称缺少' })
-        return
-    }
-    var __query = null
-    var q_k = reqData.q_k || 'id'
-    var q_v = reqData.q_v || ''
-    if (q_v) {
-        __query = __query || {}
-        var q_v_arr = q_v.split(',')
-        __query[q_k] = new RegExp('^(' + q_v_arr.join('|') + ')$', 'g')
-    }
-
-    var reqQuery = reqData.query
-    if (reqQuery) {
-        __query = __query || {}
-        try {
-            reqQuery = JSON.parse(reqQuery) || {}
-        } catch (err) {}
-        __query = Object.assign(__query, reqQuery)
-    }
+    // 获取参数
+    var ReDataAndName = getReDataAndName(req, res) || {};
+    var reqData = ReDataAndName.reqData;
+    var _db_name = ReDataAndName.db_name;
+    var _tabName = ReDataAndName.tabName;
+    // 查询对象
+    var __query = ReDataAndName.query || null;
     if (!__query) {
         res.send({ code: 11, data: null, msg: '缺少查询参数' })
         return
     }
-    dbHandler('updateMany', _tabName, [__query, { $set: { isdel: '1' } }], _db_name).then(data => {
-        res.send({ code: 0, data: data.result || {}, msg: '删除成功' })
-    });
+    if (reqData.delete) {
+        dbHandler('delete', _tabName, __query, _db_name).then(data => {
+            res.send({ code: 0, data: data, msg: '删除成功' })
+        });
+    } else {
+        dbHandler('updateMany', _tabName, [__query, { $set: { isdel: '1' } }], _db_name).then(data => {
+            res.send({ code: 0, data: data.result || {}, msg: '删除成功' })
+        });
+    }
 };
 //删除
 router.post('/CD/**', (req, res) => {
@@ -270,5 +268,72 @@ router.post('/CD/**', (req, res) => {
 });
 router.get('/CD/**', (req, res) => {
     COMMONDELDB(req, res)
+});
+
+router.get('/aggregate/**', function(req, res) {
+    try {
+        // 获取参数
+        var ReDataAndName = getReDataAndName(req, res) || {};
+        var reqData = ReDataAndName.reqData;
+        var _db_name = ReDataAndName.db_name;
+        var _tabName = ReDataAndName.tabName;
+        // 查询对象
+        var __query = ReDataAndName.query || {};
+
+        // 排序对象 -1倒叙 1正序
+        var _sort = {};
+        var s_k = reqData.s_k || 'time';
+        var s_v = reqData.s_v || -1;
+        _sort[s_k] = parseInt(s_v);
+
+        var limit = parseInt(reqData.p_s || 10); //每页数
+        var skip = (parseInt(reqData.p_n || 1) - 1) * limit; //页码
+
+        var _lookup = []
+            // 关联表键
+        if (reqData.look_k && reqData.look_v) {
+            _lookup.push({
+                $lookup: {
+                    from: reqData.look_k, //关联表
+                    localField: reqData.look_v, //主表的字段
+                    foreignField: reqData.look_v_1 || reqData.look_v, //关联表的字段
+                    as: reqData.look_k //存储的字段
+                }
+            })
+        }
+        // 关联表对象
+        if (reqData.lookup) {
+            var lookup_obj = reqData.lookup
+            try {
+                lookup_obj = JSON.parse(lookup_obj)
+            } catch (err) {}
+            lookup_obj.forEach(item => {
+                _lookup.push({
+                    $lookup: item
+                })
+            });
+        }
+
+        dbHandler('aggregate', _tabName, [
+            { $match: __query },
+            { $sort: _sort },
+            { $limit: limit },
+            { $skip: skip }
+        ].concat(_lookup), _db_name).then((data) => {
+            if (data.length) {
+                res.send({ code: 0, data: data, msg: '查询信息成功' })
+            } else {
+                res.send({ code: 0, data: null, msg: '你的信息不存在' })
+            }
+        }).catch((err) => {
+            res.send({ code: 11, data: err, msg: '获取信息错误' })
+        });
+    } catch (err) {
+        res.json({
+            code: 11,
+            data: err,
+            msg: '获取错误'
+        })
+    }
 });
 module.exports = router;
