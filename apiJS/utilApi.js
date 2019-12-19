@@ -27,12 +27,12 @@ router.get('/cossing', (req, res) => {
     ressend(req, res, resJson)
 });
 
-var getCommonApiFn = function(req, res) {
+var getCommonApiFn = function (req, res) {
     var reqData = Object.assign({}, req.query || {}, req.body || {})
     var url = reqData.url || '';
     try {
         url = decodeURIComponent(url) || ''
-    } catch (err) {}
+    } catch (err) { }
 
     if (!url) {
         ressend(req, res, { code: 11, data: '', msg: '缺少其他服务url参数' })
@@ -75,18 +75,18 @@ var getCommonApiFn = function(req, res) {
     })
 }
 
-router.get('/getOtherHost', function(req, res) {
+router.get('/getOtherHost', function (req, res) {
     getCommonApiFn(req, res)
 });
-router.post('/getOtherHost', function(req, res) {
+router.post('/getOtherHost', function (req, res) {
     getCommonApiFn(req, res)
 });
 
-router.get('/downloadFile', function(req, res) {
+var pipeCallbake = function (req, res) {
     var url = req.query.url || '';
     try {
         url = decodeURIComponent(url) || ''
-    } catch (err) {}
+    } catch (err) { }
     if (!url) {
         ressend(req, res, { code: 11, data: '', msg: '缺少资源url参数' })
     }
@@ -107,16 +107,24 @@ router.get('/downloadFile', function(req, res) {
             url: url,
             query: params
         }).pipe(res);
-    } catch (err) {}
+    } catch (err) { }
+}
+
+router.get('/pipe', function (req, res) {
+    pipeCallbake(req, res)
 });
 
-var getLoginInfo = function(utoken, k) {
+router.get('/downloadFile', function (req, res) {
+    pipeCallbake(req, res)
+});
+
+var getLoginInfo = function (utoken, k) {
     k = k || 'openid'
     var info = JSON.parse(aseCode.aseDecode(utoken)) || {}
     return info[k] || ''
 };
 
-var getReDataAndName = function(req, res) {
+var getReDataAndName = function (req, res) {
     // 获取参数
     var reqData = Object.assign({}, req.query || {}, req.body || {})
     var mongoArr = req.path.split('/')
@@ -139,7 +147,7 @@ var getReDataAndName = function(req, res) {
     if (reqQuery) {
         try {
             reqQuery = JSON.parse(reqQuery)
-        } catch (err) {}
+        } catch (err) { }
         query = Object.assign(query || {}, reqQuery)
     }
     delete reqData['query']
@@ -151,7 +159,7 @@ var getReDataAndName = function(req, res) {
     }
 }
 
-const COMMONQUERYDB = function(req, res) {
+const COMMONQUERYDB = function (req, res) {
     try {
         // 获取参数
         var ReDataAndName = getReDataAndName(req, res) || {};
@@ -188,10 +196,10 @@ const COMMONQUERYDB = function(req, res) {
         })
     }
 }
-router.get('/CQ/**', function(req, res) {
+router.get('/CQ/**', function (req, res) {
     COMMONQUERYDB(req, res)
 });
-router.post('/CQ/**', function(req, res) {
+router.post('/CQ/**', function (req, res) {
     COMMONQUERYDB(req, res)
 });
 
@@ -240,7 +248,7 @@ router.post('/CA/**', (req, res) => {
     }
 });
 
-var COMMONDELDB = function(req, res) {
+var COMMONDELDB = function (req, res) {
     // 获取参数
     var ReDataAndName = getReDataAndName(req, res) || {};
     var reqData = ReDataAndName.reqData;
@@ -270,7 +278,7 @@ router.get('/CD/**', (req, res) => {
     COMMONDELDB(req, res)
 });
 
-router.get('/aggregate/**', function(req, res) {
+router.get('/aggregate/**', function (req, res) {
     try {
         // 获取参数
         var ReDataAndName = getReDataAndName(req, res) || {};
@@ -290,7 +298,7 @@ router.get('/aggregate/**', function(req, res) {
         var skip = (parseInt(reqData.p_n || 1) - 1) * limit; //页码
 
         var _lookup = []
-            // 关联表键
+        // 关联表键
         if (reqData.look_k && reqData.look_v) {
             _lookup.push({
                 $lookup: {
@@ -306,7 +314,7 @@ router.get('/aggregate/**', function(req, res) {
             var lookup_obj = reqData.lookup
             try {
                 lookup_obj = JSON.parse(lookup_obj)
-            } catch (err) {}
+            } catch (err) { }
             lookup_obj.forEach(item => {
                 _lookup.push({
                     $lookup: item
