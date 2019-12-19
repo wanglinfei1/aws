@@ -317,8 +317,8 @@ router.get('/aggregate/**', function(req, res) {
         dbHandler('aggregate', _tabName, [
             { $match: __query },
             { $sort: _sort },
+            { $skip: skip },
             { $limit: limit },
-            { $skip: skip }
         ].concat(_lookup), _db_name).then((data) => {
             if (data.length) {
                 res.send({ code: 0, data: data, msg: '查询信息成功' })
